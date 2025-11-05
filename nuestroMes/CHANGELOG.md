@@ -1,5 +1,82 @@
 # 📝 Changelog - NuestroMes
 
+## Sesión 3.1 - 5 de noviembre, 2025 ✍️💕
+
+### 📝 Formulario de Nuevos Mensajes (NUEVO)
+- ✓ **Formulario modal completo** para crear mensajes personalizados
+- ✓ **6 campos configurables**:
+  - Categoría (6 opciones)
+  - Emoji (15 opciones románticas)
+  - Texto del mensaje (máx 500 caracteres con contador)
+  - Nota especial (opcional)
+  - Firma personalizada (pre-rellenado con "Rocío")
+- ✓ **Vista previa en vivo** antes de guardar
+- ✓ **Botón "Agregar Mensaje"** flotante en esquina superior derecha
+- ✓ **Almacenamiento en localStorage** (persiste entre sesiones)
+- ✓ **Lista de mensajes guardados** dentro del modal
+- ✓ **Eliminar mensajes** con confirmación
+- ✓ **Contador de caracteres** en tiempo real
+- ✓ **Preview de emoji** animado
+- ✓ Archivo: `js/formulario.js` (450 líneas)
+
+### 📄 Página "Mis Mensajes" (NUEVO)
+- ✓ **Página dedicada**: `mis-mensajes.php`
+- ✓ **Filtro por categoría**: Ver mensajes específicos o todos
+- ✓ **Diseño elegante**: Cards con badges, emojis y fechas
+- ✓ **Gestión completa**: Ver y eliminar mensajes
+- ✓ **Mensaje vacío**: Diseño especial cuando no hay mensajes
+- ✓ **Botón de acceso rápido** en `index.php`
+- ✓ **Contador dinámico**: Muestra cantidad de mensajes guardados
+- ✓ 100% responsive y compatible con modo oscuro
+
+### 🔔 Sistema de Notificaciones (NUEVO)
+- ✓ **Toast notifications** elegantes y animadas
+- ✓ **4 tipos**: Éxito ✅, Error ❌, Advertencia ⚠️, Info ℹ️
+- ✓ **Auto-cierre**: Desaparecen después de 3 segundos
+- ✓ **Animación suave**: Desliza desde la derecha
+- ✓ **Posicionamiento inteligente**: No interfiere con otros elementos
+
+### 🎆 Animaciones Especiales (NUEVO)
+- ✓ **Explosión de corazones** al guardar mensaje
+- ✓ **15 corazones** con diferentes colores (❤️💕💖💝)
+- ✓ **Animación circular**: Explotan en todas direcciones
+- ✓ **Auto-limpieza**: Se eliminan después de 2 segundos
+- ✓ Animación: `explosionCorazon` con transforms avanzados
+
+### 🎨 Estilos CSS Extendidos
+- ✓ Agregadas **800+ líneas nuevas** de CSS
+- ✓ Estilos completos del formulario modal
+- ✓ Estilos de la página "Mis Mensajes"
+- ✓ Estilos de notificaciones toast
+- ✓ Animación de explosión de corazones
+- ✓ **100% adaptado a modo oscuro**
+- ✓ **Totalmente responsive** (móvil, tablet, desktop)
+
+### 💾 Gestión de Datos
+- ✓ **localStorage** como base de datos local
+- ✓ **Estructura JSON** bien definida
+- ✓ **IDs únicos** con timestamps
+- ✓ **Ordenamiento** por fecha (más recientes primero)
+- ✓ **Persistencia** entre sesiones del navegador
+- ✓ **Backup manual** posible vía consola
+
+### 🔧 Integraciones
+- ✓ Integrado en `index.php` y `mensajes.php`
+- ✓ Compatible con todas las funcionalidades existentes
+- ✓ No hay conflictos con otros scripts
+- ✓ Funciona con modo oscuro/claro
+- ✓ Accesible desde todas las páginas
+
+### 📊 Métricas actualizadas
+- Total archivos: **27** (+5 desde Sesión 3)
+- Tamaño total: **~165 KB** (+21 KB)
+- Archivos JS: **6** (+1 formulario.js)
+- Líneas de código CSS: **2000+** (+800 nuevas)
+- Páginas PHP: **4** (+1 mis-mensajes.php)
+- Funcionalidades interactivas: **11** (+1 formulario)
+
+---
+
 ## Sesión 3 - 5 de noviembre, 2025 🎉🎵📸🌙
 
 ### 🎵 Reproductor de Música Romántica (NUEVO)

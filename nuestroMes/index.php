@@ -76,6 +76,16 @@
             </div>
         </section>
 
+        <section class="acceso-rapido">
+            <a href="mis-mensajes.php" class="btn-mis-mensajes">
+                <span class="icono-btn">✍️</span>
+                <div class="texto-btn">
+                    <strong>Mis Mensajes</strong>
+                    <small id="contadorMisMensajes">0 mensajes guardados</small>
+                </div>
+            </a>
+        </section>
+
         <footer class="pie-pagina">
             <div class="contador-dias">
                 <p class="texto-contador">Llevamos juntos:</p>
@@ -98,6 +108,7 @@
     <script src="js/musica.js"></script>
     <script src="js/galeria.js"></script>
     <script src="js/modoOscuro.js"></script>
+    <script src="js/formulario.js"></script>
     <script>
         // Contador de días juntos
         function calcularDiasJuntos() {
@@ -143,6 +154,23 @@
         
         // Calcular al cargar
         calcularDiasJuntos();
+        
+        // Actualizar contador de mensajes personalizados
+        function actualizarContadorMensajes() {
+            const mensajes = JSON.parse(localStorage.getItem('mensajesPersonalizados') || '[]');
+            const contador = document.getElementById('contadorMisMensajes');
+            if (contador) {
+                const num = mensajes.length;
+                contador.textContent = num === 0 ? 'Sin mensajes aún' : 
+                                      num === 1 ? '1 mensaje guardado' : 
+                                      `${num} mensajes guardados`;
+            }
+        }
+        
+        actualizarContadorMensajes();
+        
+        // Actualizar cuando cambie localStorage
+        window.addEventListener('storage', actualizarContadorMensajes);
     </script>
 </body>
 </html>

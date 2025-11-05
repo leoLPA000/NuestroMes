@@ -112,6 +112,7 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
     <script src="js/musica.js"></script>
     <script src="js/galeria.js"></script>
     <script src="js/modoOscuro.js"></script>
+    <script src="js/formulario.js"></script>
     <script>
         // Mensaje aleatorio interactivo
         document.addEventListener('DOMContentLoaded', function() {
