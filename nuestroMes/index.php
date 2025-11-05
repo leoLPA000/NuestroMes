@@ -95,6 +95,9 @@
     
     <script src="js/efectos.js"></script>
     <script src="js/cursorEffects.js"></script>
+    <script src="js/musica.js"></script>
+    <script src="js/galeria.js"></script>
+    <script src="js/modoOscuro.js"></script>
     <script>
         // Contador de días juntos
         function calcularDiasJuntos() {

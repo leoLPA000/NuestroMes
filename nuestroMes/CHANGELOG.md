@@ -1,5 +1,83 @@
 # 📝 Changelog - NuestroMes
 
+## Sesión 3 - 5 de noviembre, 2025 🎉🎵📸🌙
+
+### 🎵 Reproductor de Música Romántica (NUEVO)
+- ✓ **Reproductor flotante** en esquina inferior derecha
+- ✓ **Controles completos**: Play/Pause, Anterior, Siguiente
+- ✓ **Control de volumen** con slider interactivo
+- ✓ **Playlist personalizable** (3 canciones por defecto)
+- ✓ **Info visual**: Título y artista de la canción
+- ✓ **Animaciones**: Icono musical que pulsa al reproducir
+- ✓ **Botón cerrar** con animación de rotación
+- ✓ **Auto-siguiente**: Pasa a la siguiente canción automáticamente
+- ✓ **Responsive**: Se adapta a móvil ocupando todo el ancho
+- ✓ Archivo: `js/musica.js` (280 líneas)
+
+### 📸 Galería de Fotos (NUEVO)
+- ✓ **Botón flotante** en esquina inferior izquierda
+- ✓ **Modal fullscreen** con overlay oscuro
+- ✓ **Navegación**: Flechas izquierda/derecha (click y teclado)
+- ✓ **Thumbnails** interactivos en la parte inferior
+- ✓ **Info de foto**: Título, fecha, descripción personalizable
+- ✓ **Contador**: Muestra "1/4" etc.
+- ✓ **Transiciones suaves** entre imágenes
+- ✓ **Cerrar**: Botón X, ESC, o click en overlay
+- ✓ **Responsive**: Optimizado para móvil y tablet
+- ✓ **4 fotos** por defecto (expandible)
+- ✓ Archivo: `js/galeria.js` (220 líneas)
+
+### 🌙 Modo Oscuro/Claro (NUEVO)
+- ✓ **Toggle switch** romántico en esquina superior derecha
+- ✓ **Iconos animados**: ☀️ sol y 🌙 luna
+- ✓ **Paleta oscura personalizada**:
+  - Fondo: #1a1a2e (azul oscuro)
+  - Cards: #16213e
+  - Acentos: #ff6b9d (rosa brillante)
+  - Texto: #eaeaea (blanco suave)
+- ✓ **Persiste preferencia** en localStorage
+- ✓ **Transición suave** con overlay animado
+- ✓ **Partículas especiales** al cambiar tema
+- ✓ **Todos los elementos adaptados** (categorías, mensajes, botones)
+- ✓ **Responsive**: Oculta texto en móvil
+- ✓ Archivo: `js/modoOscuro.js` (150 líneas)
+
+### 🎨 Estilos CSS Extendidos
+- ✓ Agregadas **600+ líneas nuevas** de CSS
+- ✓ Variables CSS para modo oscuro
+- ✓ Estilos completos del reproductor
+- ✓ Estilos completos de galería
+- ✓ Estilos completos del toggle
+- ✓ **4 animaciones nuevas**:
+  - `slideInRight` - Entrada desde derecha
+  - `slideInLeft` - Entrada desde izquierda
+  - `zoomIn` - Zoom modal
+  - `particleFloatUp` - Partículas de tema
+- ✓ **Responsive completo** para todas las nuevas funcionalidades
+
+### 📂 Estructura Actualizada
+- ✓ Creada carpeta `audio/` para archivos MP3
+- ✓ Creada carpeta `galeria/` para fotos
+- ✓ Agregado `audio/README.md` con instrucciones
+- ✓ Agregado `galeria/README.md` con instrucciones
+- ✓ Agregado `SESION3.md` con documentación completa
+- ✓ Actualizados `index.php` y `mensajes.php` con nuevos scripts
+
+### 🔧 Integraciones
+- ✓ Todos los scripts integrados en ambas páginas
+- ✓ No hay conflictos entre funcionalidades
+- ✓ Carga optimizada sin bloqueos
+- ✓ Compatibilidad con efectos existentes
+
+### 📊 Métricas actualizadas
+- Total archivos: **22** (+8 desde Sesión 2.1)
+- Tamaño total: **~110 KB**
+- Archivos JS: **6** (efectos, cursor, música, galería, modoOscuro)
+- Líneas de código CSS: **1400+** (+600 nuevas)
+- Funcionalidades interactivas: **10** (+3 nuevas)
+
+---
+
 ## Sesión 2.1 - 5 de noviembre, 2025 ✨✨
 
 ### 🎨 Efectos de Cursor Personalizados (NUEVO)
