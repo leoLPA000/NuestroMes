@@ -12,28 +12,24 @@ document.addEventListener('DOMContentLoaded', function() {
 // INICIALIZAR EFECTOS
 // ============================================================
 function inicializarEfectos() {
-    console.log('💕 Efectos cargados para Rocío');
+    console.log('💕 Efectos cargados para Rocío (modo optimizado)');
     
     // Agregar clase de cargado
     document.body.classList.add('cargado');
     
-    // Detectar hover en categorías
-    const categorias = document.querySelectorAll('.categoria-card');
-    categorias.forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            crearExplosionCorazones(this);
-        });
-    });
+    // Explosión de corazones desactivada para mejor rendimiento
+    // Los efectos hover están en cursorEffects.js
 }
 
 // ============================================================
-// CORAZONES FLOTANTES
+// CORAZONES FLOTANTES - OPTIMIZADO
 // ============================================================
 function crearCorazonesFlotantes() {
     const contenedor = document.getElementById('efectos-fondo');
     if (!contenedor) return;
     
-    const numCorazones = window.innerWidth < 768 ? 10 : 15;
+    // REDUCIDO: 5 en móvil, 8 en desktop (antes 10/15)
+    const numCorazones = window.innerWidth < 768 ? 5 : 8;
     
     for (let i = 0; i < numCorazones; i++) {
         setTimeout(() => {
@@ -43,34 +39,37 @@ function crearCorazonesFlotantes() {
             
             // Posición aleatoria
             corazon.style.left = Math.random() * 100 + '%';
-            corazon.style.fontSize = (Math.random() * 20 + 15) + 'px';
-            corazon.style.animationDuration = (Math.random() * 5 + 8) + 's';
-            corazon.style.animationDelay = (Math.random() * 3) + 's';
-            corazon.style.opacity = Math.random() * 0.4 + 0.3;
+            corazon.style.fontSize = (Math.random() * 15 + 12) + 'px'; // Más pequeños
+            corazon.style.animationDuration = (Math.random() * 4 + 10) + 's'; // Más lentos
+            corazon.style.animationDelay = (Math.random() * 2) + 's';
+            corazon.style.opacity = Math.random() * 0.3 + 0.2; // Más transparentes
             
             contenedor.appendChild(corazon);
             
             // Remover después de la animación
             setTimeout(() => {
-                corazon.remove();
+                if (corazon.parentNode) {
+                    corazon.remove();
+                }
             }, 15000);
-        }, i * 800);
+        }, i * 1200); // Más espaciados
     }
     
-    // Repetir cada 12 segundos
+    // Repetir cada 18 segundos (antes 12)
     setInterval(() => {
         crearCorazonesFlotantes();
-    }, 12000);
+    }, 18000);
 }
 
 // ============================================================
-// PÉTALOS DE ROSA
+// PÉTALOS DE ROSA - OPTIMIZADO
 // ============================================================
 function crearPetalosRosa() {
     const contenedor = document.getElementById('efectos-fondo');
     if (!contenedor) return;
     
-    const numPetalos = window.innerWidth < 768 ? 8 : 12;
+    // REDUCIDO: 4 en móvil, 6 en desktop (antes 8/12)
+    const numPetalos = window.innerWidth < 768 ? 4 : 6;
     
     for (let i = 0; i < numPetalos; i++) {
         setTimeout(() => {
@@ -80,57 +79,36 @@ function crearPetalosRosa() {
             
             // Posición y animación aleatoria
             petalo.style.left = Math.random() * 100 + '%';
-            petalo.style.fontSize = (Math.random() * 15 + 10) + 'px';
-            petalo.style.animationDuration = (Math.random() * 8 + 10) + 's';
-            petalo.style.animationDelay = (Math.random() * 2) + 's';
-            petalo.style.opacity = Math.random() * 0.5 + 0.3;
+            petalo.style.fontSize = (Math.random() * 12 + 10) + 'px'; // Más pequeños
+            petalo.style.animationDuration = (Math.random() * 6 + 12) + 's'; // Más lentos
+            petalo.style.animationDelay = (Math.random() * 3) + 's';
+            petalo.style.opacity = Math.random() * 0.4 + 0.2; // Más transparentes
             
             contenedor.appendChild(petalo);
             
             // Remover después de caer
             setTimeout(() => {
-                petalo.remove();
-            }, 18000);
-        }, i * 1200);
+                if (petalo.parentNode) {
+                    petalo.remove();
+                }
+            }, 20000);
+        }, i * 1500); // Más espaciados
     }
     
-    // Repetir cada 15 segundos
+    // Repetir cada 20 segundos (antes 15)
     setInterval(() => {
         crearPetalosRosa();
-    }, 15000);
+    }, 20000);
 }
 
 // ============================================================
-// EXPLOSIÓN DE CORAZONES AL HOVER
+// EXPLOSIÓN DE CORAZONES AL HOVER - DESACTIVADO
 // ============================================================
+// Esta función está desactivada para mejorar el rendimiento
+// Los efectos de hover ahora se manejan en cursorEffects.js
 function crearExplosionCorazones(elemento) {
-    const rect = elemento.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    
-    for (let i = 0; i < 5; i++) {
-        const corazon = document.createElement('div');
-        corazon.className = 'corazon-explosion';
-        corazon.innerHTML = '💖';
-        corazon.style.left = centerX + 'px';
-        corazon.style.top = centerY + 'px';
-        corazon.style.fontSize = (Math.random() * 10 + 12) + 'px';
-        
-        // Dirección aleatoria
-        const angulo = (Math.PI * 2 * i) / 5;
-        const distancia = Math.random() * 50 + 30;
-        const tx = Math.cos(angulo) * distancia;
-        const ty = Math.sin(angulo) * distancia;
-        
-        corazon.style.setProperty('--tx', tx + 'px');
-        corazon.style.setProperty('--ty', ty + 'px');
-        
-        document.body.appendChild(corazon);
-        
-        setTimeout(() => {
-            corazon.remove();
-        }, 1000);
-    }
+    // Función desactivada para optimización
+    return;
 }
 
 // ============================================================
@@ -239,37 +217,9 @@ estilosEfectos.textContent = `
 document.head.appendChild(estilosEfectos);
 
 // ============================================================
-// EFECTO DE CURSOR (OPCIONAL - para desktop)
+// EFECTO DE ESTELA - DESACTIVADO PARA OPTIMIZACIÓN
 // ============================================================
-if (window.innerWidth > 768) {
-    document.addEventListener('mousemove', function(e) {
-        // Cada 100ms crear una estela sutil
-        if (Math.random() > 0.95) {
-            const estela = document.createElement('div');
-            estela.className = 'cursor-estela';
-            estela.innerHTML = '✨';
-            estela.style.left = e.pageX + 'px';
-            estela.style.top = e.pageY + 'px';
-            estela.style.position = 'absolute';
-            estela.style.pointerEvents = 'none';
-            estela.style.fontSize = '12px';
-            estela.style.opacity = '0.6';
-            estela.style.transition = 'all 0.8s ease';
-            estela.style.zIndex = '9999';
-            
-            document.body.appendChild(estela);
-            
-            setTimeout(() => {
-                estela.style.opacity = '0';
-                estela.style.transform = 'translateY(-30px) scale(1.5)';
-            }, 10);
-            
-            setTimeout(() => {
-                estela.remove();
-            }, 800);
-        }
-    });
-}
+// Este efecto está ahora integrado en cursorEffects.js de manera más eficiente
 
 // ============================================================
 // LOG ROMÁNTICO EN CONSOLA (easter egg)

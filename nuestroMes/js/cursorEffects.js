@@ -35,6 +35,9 @@ class CursorEffects {
     }
     
     bindMouseEvents() {
+        let lastParticleTime = 0;
+        const particleThrottle = 150; // Mínimo 150ms entre partículas
+        
         document.addEventListener('mousemove', (e) => {
             this.mouseX = e.clientX;
             this.mouseY = e.clientY;
@@ -45,9 +48,11 @@ class CursorEffects {
                 this.customCursor.style.top = (this.mouseY - 10) + 'px';
             }
             
-            // Crear partícula cada cierto movimiento
-            if (Math.random() < 0.7) { // 70% de probabilidad
+            // Crear partícula solo cada 150ms (throttle)
+            const now = Date.now();
+            if (now - lastParticleTime > particleThrottle && Math.random() < 0.15) { // Solo 15%
                 this.createParticle(this.mouseX, this.mouseY);
+                lastParticleTime = now;
             }
         });
         
@@ -55,14 +60,14 @@ class CursorEffects {
             if (this.customCursor) {
                 this.customCursor.classList.add('clicking');
             }
-            // Crear ráfaga de partículas al hacer clic
-            for (let i = 0; i < 5; i++) {
+            // Crear solo 3 partículas al hacer clic (reducido de 5)
+            for (let i = 0; i < 3; i++) {
                 setTimeout(() => {
                     this.createParticle(
                         this.mouseX + (Math.random() - 0.5) * 20,
                         this.mouseY + (Math.random() - 0.5) * 20
                     );
-                }, i * 50);
+                }, i * 80);
             }
         });
         
@@ -74,70 +79,77 @@ class CursorEffects {
     }
     
     bindTouchEvents() {
+        let lastTouchTime = 0;
+        const touchThrottle = 250; // Throttle más agresivo para móvil
+        
         document.addEventListener('touchmove', (e) => {
-            e.preventDefault();
+            const now = Date.now();
+            if (now - lastTouchTime < touchThrottle) return;
+            
             const touch = e.touches[0];
             this.mouseX = touch.clientX;
             this.mouseY = touch.clientY;
             
-            // Crear partícula en cada movimiento táctil
-            this.createParticle(this.mouseX, this.mouseY);
-        }, { passive: false });
+            // Solo crear partícula cada 250ms
+            if (Math.random() < 0.3) { // 30% probabilidad
+                this.createParticle(this.mouseX, this.mouseY);
+                lastTouchTime = now;
+            }
+        }, { passive: true }); // Cambiar a passive para mejor performance
         
         document.addEventListener('touchstart', (e) => {
             const touch = e.touches[0];
             this.mouseX = touch.clientX;
             this.mouseY = touch.clientY;
             
-            // Crear partículas al tocar
-            for (let i = 0; i < 3; i++) {
+            // Solo 2 partículas al tocar (reducido de 3)
+            for (let i = 0; i < 2; i++) {
                 setTimeout(() => {
                     this.createParticle(
                         this.mouseX + (Math.random() - 0.5) * 15,
                         this.mouseY + (Math.random() - 0.5) * 15
                     );
-                }, i * 30);
+                }, i * 50);
             }
         });
     }
     
     createParticle(x, y) {
+        // Limitar el número máximo de partículas simultáneas
+        if (this.particles.length > 30) return;
+        
         const particle = document.createElement('div');
         particle.className = 'cursor-particle';
         
-        // Tipos de partículas románticas
-        const types = ['heart', 'sparkle', 'bubble', 'star'];
+        // Solo 2 tipos de partículas para mejor rendimiento
+        const types = ['heart', 'sparkle'];
         const randomType = types[Math.floor(Math.random() * types.length)];
         
         particle.classList.add(randomType);
         
         // Contenido según el tipo
         if (randomType === 'heart') {
-            const hearts = ['💕', '💖', '💗', '💝', '💘', '❤️', '💙', '💜'];
+            const hearts = ['💕', '💖', '💗', '💝', '💘', '❤️', '❤️‍🔥', '💜'];
             particle.textContent = hearts[Math.floor(Math.random() * hearts.length)];
-            particle.style.fontSize = (Math.random() * 8 + 8) + 'px';
+            particle.style.fontSize = (Math.random() * 6 + 10) + 'px';
         }
         
         // Posición inicial
         particle.style.left = x + 'px';
         particle.style.top = y + 'px';
         
-        // Variaciones aleatorias
-        const randomDelay = Math.random() * 200;
-        const randomDuration = 800 + Math.random() * 400;
-        const randomDirection = (Math.random() - 0.5) * 60;
+        // Duración más corta para limpieza más rápida
+        const randomDuration = 600 + Math.random() * 300; // 600-900ms (reducido)
+        const randomDirection = (Math.random() - 0.5) * 40;
         
-        particle.style.animationDelay = randomDelay + 'ms';
         particle.style.animationDuration = randomDuration + 'ms';
-        
-        // Añadir movimiento lateral aleatorio
         particle.style.setProperty('--random-x', randomDirection + 'px');
         
         this.container.appendChild(particle);
         this.particles.push({
             element: particle,
             birthTime: Date.now(),
-            duration: randomDuration + randomDelay
+            duration: randomDuration
         });
         
         // Eliminar partícula después de la animación
@@ -145,7 +157,7 @@ class CursorEffects {
             if (particle.parentNode) {
                 particle.parentNode.removeChild(particle);
             }
-        }, randomDuration + randomDelay);
+        }, randomDuration);
     }
     
     animate() {
@@ -176,68 +188,80 @@ class RomanticEnhancements {
         // Efecto especial cuando el cursor está sobre las categorías
         const categorias = document.querySelectorAll('.categoria-card');
         categorias.forEach(card => {
+            let hoverTimeout;
             card.addEventListener('mouseenter', () => {
-                // Crear ráfaga de corazones al entrar
-                for (let i = 0; i < 3; i++) {
+                // Solo 2 corazones al entrar (reducido de 3)
+                clearTimeout(hoverTimeout);
+                hoverTimeout = setTimeout(() => {
+                    const rect = card.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    window.cursorEffects.createParticle(centerX, centerY);
+                    
                     setTimeout(() => {
-                        const rect = card.getBoundingClientRect();
-                        const centerX = rect.left + rect.width / 2;
-                        const centerY = rect.top + rect.height / 2;
                         window.cursorEffects.createParticle(
                             centerX + (Math.random() - 0.5) * 30,
                             centerY + (Math.random() - 0.5) * 30
                         );
-                    }, i * 100);
-                }
+                    }, 100);
+                }, 50); // Pequeño delay para evitar spam
             });
         });
         
-        // Efecto en mensajes
+        // Efecto en mensajes - MUY REDUCIDO
         const mensajes = document.querySelectorAll('.mensaje-card');
         mensajes.forEach(mensaje => {
+            let hoverTimeout;
             mensaje.addEventListener('mouseenter', () => {
-                // Crear partículas suaves
-                const rect = mensaje.getBoundingClientRect();
-                for (let i = 0; i < 2; i++) {
-                    setTimeout(() => {
-                        window.cursorEffects.createParticle(
-                            rect.left + Math.random() * rect.width,
-                            rect.top + Math.random() * rect.height
-                        );
-                    }, i * 150);
-                }
+                // Solo 1 partícula (reducido de 2)
+                clearTimeout(hoverTimeout);
+                hoverTimeout = setTimeout(() => {
+                    const rect = mensaje.getBoundingClientRect();
+                    window.cursorEffects.createParticle(
+                        rect.left + Math.random() * rect.width,
+                        rect.top + Math.random() * rect.height
+                    );
+                }, 100);
             });
         });
         
-        // Efecto en botones
+        // Efecto en botones - REDUCIDO
         const botones = document.querySelectorAll('.btn-aleatorio, .btn-volver, .btn-inicio');
         botones.forEach(boton => {
+            let clickTimeout;
             boton.addEventListener('click', () => {
-                const rect = boton.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
-                
-                // Explosión de partículas
-                for (let i = 0; i < 8; i++) {
-                    setTimeout(() => {
-                        const angle = (Math.PI * 2 * i) / 8;
-                        const distance = 30;
-                        window.cursorEffects.createParticle(
-                            centerX + Math.cos(angle) * distance,
-                            centerY + Math.sin(angle) * distance
-                        );
-                    }, i * 50);
-                }
+                clearTimeout(clickTimeout);
+                clickTimeout = setTimeout(() => {
+                    const rect = boton.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    
+                    // Solo 4 partículas (reducido de 8)
+                    for (let i = 0; i < 4; i++) {
+                        setTimeout(() => {
+                            const angle = (Math.PI * 2 * i) / 4;
+                            const distance = 25;
+                            window.cursorEffects.createParticle(
+                                centerX + Math.cos(angle) * distance,
+                                centerY + Math.sin(angle) * distance
+                            );
+                        }, i * 60);
+                    }
+                }, 0);
             });
         });
     }
     
     addClickRipples() {
+        let lastRippleTime = 0;
+        const rippleThrottle = 300; // Mínimo 300ms entre ripples
+        
         document.addEventListener('click', (e) => {
-            // Prevenir selección de texto
-            e.preventDefault();
+            const now = Date.now();
+            if (now - lastRippleTime < rippleThrottle) return;
+            lastRippleTime = now;
             
-            // Crear efecto de ondas al hacer clic
+            // Crear efecto de ondas al hacer clic (más ligero)
             const ripple = document.createElement('div');
             ripple.style.position = 'fixed';
             ripple.style.left = e.clientX + 'px';
@@ -245,10 +269,10 @@ class RomanticEnhancements {
             ripple.style.width = '0px';
             ripple.style.height = '0px';
             ripple.style.borderRadius = '50%';
-            ripple.style.background = 'radial-gradient(circle, rgba(255, 182, 193, 0.4), transparent)';
+            ripple.style.background = 'radial-gradient(circle, rgba(255, 182, 193, 0.3), transparent)';
             ripple.style.pointerEvents = 'none';
             ripple.style.zIndex = '9998';
-            ripple.style.animation = 'rippleEffect 0.6s ease-out forwards';
+            ripple.style.animation = 'rippleEffect 0.5s ease-out forwards';
             ripple.style.userSelect = 'none';
             
             document.body.appendChild(ripple);
@@ -257,18 +281,7 @@ class RomanticEnhancements {
                 if (ripple.parentNode) {
                     ripple.parentNode.removeChild(ripple);
                 }
-            }, 600);
-        });
-        
-        // Prevenir selección en eventos de mouse
-        document.addEventListener('selectstart', (e) => {
-            e.preventDefault();
-            return false;
-        });
-        
-        document.addEventListener('dragstart', (e) => {
-            e.preventDefault();
-            return false;
+            }, 500);
         });
     }
 }
