@@ -45,6 +45,50 @@ body.tema-oscuro .categoria:hover {
     transform: translateY(-8px) scale(1.02);
 }
 
+body.tema-oscuro .texto-mensaje {
+    color: #f0f0f0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+body.tema-oscuro .nota-mensaje {
+    color: var(--acento-oscuro);
+    border-top-color: rgba(255, 107, 157, 0.3);
+}
+
+body.tema-oscuro .mensaje-card.destacado {
+    background: linear-gradient(135deg, rgba(255, 107, 157, 0.15), rgba(142, 68, 173, 0.15));
+    border-color: var(--acento-oscuro);
+}
+
+body.tema-oscuro .subtitulo {
+    color: #ffc2d1;
+}
+
+body.tema-oscuro .fecha-especial {
+    color: var(--acento-oscuro);
+}
+
+body.tema-oscuro .intro {
+    background: rgba(22, 33, 62, 0.9);
+    box-shadow: 0 8px 30px rgba(255, 107, 157, 0.2);
+}
+
+body.tema-oscuro .mensaje-intro {
+    color: #e0e0e0;
+}
+
+body.tema-oscuro .seccion-titulo {
+    color: var(--acento-oscuro);
+}
+
+body.tema-oscuro .categoria-card h3 {
+    color: #ffc2d1;
+}
+
+body.tema-oscuro .categoria-card p {
+    color: #d0d0d0;
+}
+
 body.tema-oscuro .btn-volver,
 body.tema-oscuro .btn-aleatorio {
     background: linear-gradient(135deg, var(--acento-oscuro) 0%, var(--morado-oscuro) 100%);
@@ -60,6 +104,72 @@ body.tema-oscuro .titulo-categoria {
 body.tema-oscuro .corazon-flotante,
 body.tema-oscuro .petalo-rosa {
     opacity: 0.3;
+}
+
+/* Reproductor en modo oscuro */
+body.tema-oscuro .reproductor-container {
+    background: linear-gradient(135deg, rgba(22, 33, 62, 0.95) 0%, rgba(108, 52, 131, 0.95) 100%);
+    box-shadow: 0 10px 40px rgba(255, 107, 157, 0.3);
+    border: 1px solid rgba(255, 107, 157, 0.2);
+}
+
+body.tema-oscuro .cancion-titulo {
+    color: var(--acento-oscuro);
+}
+
+body.tema-oscuro .cancion-artista {
+    color: var(--texto-oscuro);
+    opacity: 0.8;
+}
+
+body.tema-oscuro .btn-control {
+    background: linear-gradient(135deg, var(--acento-oscuro), var(--morado-oscuro));
+    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+}
+
+body.tema-oscuro .btn-control:hover {
+    box-shadow: 0 6px 25px rgba(255, 107, 157, 0.5);
+}
+
+body.tema-oscuro .btn-minimizar-reproductor {
+    background: rgba(255, 107, 157, 0.2);
+    color: var(--acento-oscuro);
+}
+
+body.tema-oscuro .btn-minimizar-reproductor:hover {
+    background: var(--acento-oscuro);
+    color: white;
+}
+
+body.tema-oscuro .reproductor-minimizado {
+    background: linear-gradient(135deg, var(--acento-oscuro), var(--morado-oscuro));
+    box-shadow: 0 8px 30px rgba(255, 107, 157, 0.4);
+}
+
+body.tema-oscuro .reproductor-minimizado:hover {
+    box-shadow: 0 12px 40px rgba(255, 107, 157, 0.6);
+}
+
+body.tema-oscuro .volumen-slider {
+    background: linear-gradient(90deg, var(--acento-oscuro), var(--morado-oscuro));
+}
+
+body.tema-oscuro .volumen-slider::-webkit-slider-thumb {
+    background: var(--acento-oscuro);
+}
+
+body.tema-oscuro .volumen-slider::-moz-range-thumb {
+    background: var(--acento-oscuro);
+}
+
+/* Botón Galería en modo oscuro */
+body.tema-oscuro .btn-galeria {
+    background: linear-gradient(135deg, var(--morado-oscuro), var(--acento-oscuro));
+    box-shadow: 0 8px 30px rgba(255, 107, 157, 0.3);
+}
+
+body.tema-oscuro .btn-galeria:hover {
+    box-shadow: 0 12px 40px rgba(255, 107, 157, 0.5);
 }
 
 * {
@@ -568,7 +678,7 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 9999;
+    z-index: 99998;
     overflow: hidden;
 }
 
@@ -620,7 +730,7 @@ body {
     border: 2px solid var(--rojo-amor);
     border-radius: 50%;
     pointer-events: none;
-    z-index: 10000;
+    z-index: 99999;
     transition: all 0.1s ease;
     mix-blend-mode: difference;
     background: rgba(255, 182, 193, 0.3);
@@ -877,8 +987,8 @@ body {
     border: none;
 }
 
-.btn-cerrar-reproductor {
-    background: rgba(230, 57, 70, 0.2);
+.btn-minimizar-reproductor {
+    background: rgba(142, 68, 173, 0.2);
     border: none;
     border-radius: 50%;
     width: 30px;
@@ -889,13 +999,43 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 1rem;
-    color: var(--rojo-amor);
+    color: var(--morado-suave);
 }
 
-.btn-cerrar-reproductor:hover {
-    background: var(--rojo-amor);
+.btn-minimizar-reproductor:hover {
+    background: var(--morado-suave);
     color: white;
-    transform: rotate(90deg);
+    transform: scale(1.1);
+}
+
+/* Botón flotante minimizado */
+.reproductor-minimizado {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--rojo-amor), var(--morado-suave));
+    border: none;
+    border-radius: 50%;
+    font-size: 2rem;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(142, 68, 173, 0.4);
+    z-index: 10000;
+    transition: all 0.3s ease;
+    animation: float 3s ease-in-out infinite;
+}
+
+.reproductor-minimizado:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 40px rgba(142, 68, 173, 0.6);
+}
+
+.reproductor-minimizado:active {
+    transform: scale(0.95);
 }
 
 /* ========================================
@@ -1255,6 +1395,31 @@ body.tema-oscuro .toggle-texto {
     }
     to {
         transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100px);
+        opacity: 0;
+    }
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
         opacity: 1;
     }
 }
@@ -1775,7 +1940,8 @@ body.tema-oscuro .mensaje-guardado-card {
 }
 
 body.tema-oscuro .mensaje-guardado-texto {
-    color: var(--texto-oscuro);
+    color: #f0f0f0;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .mensaje-guardado-nota {

@@ -226,4 +226,4 @@ document.head.appendChild(estilosEfectos);
 // ============================================================
 console.log('%c💕 Para Rocío, con todo mi amor 💕', 'color: #e63946; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);');
 console.log('%c🌹 Este sitio fue hecho con mucho cariño por Leo 🌹', 'color: #8e44ad; font-size: 14px; font-style: italic;');
-console.log('%c❤️ Nuestro primer mes juntos - 5 de noviembre, 2025 ❤️', 'color: #e63946; font-size: 12px;');
+console.log('%c❤️ Nuestro primer mes juntos - 8 de noviembre, 2025 ❤️', 'color: #e63946; font-size: 12px;');

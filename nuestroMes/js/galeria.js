@@ -10,7 +10,7 @@ class GaleriaRomantica {
             {
                 src: 'galeria/foto1.jpg',
                 titulo: 'Nuestro Primer Momento',
-                fecha: '5 de octubre, 2025',
+                fecha: '8 de octubre, 2025',
                 descripcion: 'El día que todo comenzó 💕'
             },
             {

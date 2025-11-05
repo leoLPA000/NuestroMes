@@ -24,7 +24,7 @@
         <header class="hero">
             <h1 class="titulo-principal">Para ti, Rocío ❤️</h1>
             <p class="subtitulo">Nuestro primer mes juntos</p>
-            <div class="fecha-especial">5 de noviembre, 2025</div>
+            <div class="fecha-especial">8 de noviembre, 2025</div>
         </header>
 
         <section class="intro">
@@ -90,7 +90,7 @@
             <div class="contador-dias">
                 <p class="texto-contador">Llevamos juntos:</p>
                 <p class="numero-dias" id="diasJuntos">1 mes</p>
-                <p class="texto-pequeno">Desde el 5 de octubre, 2025 💕</p>
+                <p class="texto-pequeno">Desde el 8 de octubre, 2025 💕</p>
             </div>
             <p>Con todo mi amor para Rocío Milagros Fernández 💕</p>
             <p class="firma">— Tu Leo que te adora</p>
@@ -112,7 +112,7 @@
     <script>
         // Contador de días juntos
         function calcularDiasJuntos() {
-            const fechaInicio = new Date('2025-10-05'); // 5 de octubre 2025
+            const fechaInicio = new Date('2025-10-08'); // 8 de octubre 2025
             const hoy = new Date();
             const diferencia = hoy - fechaInicio;
             const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));

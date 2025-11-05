@@ -9,6 +9,7 @@ class ReproductorRomantico {
         this.playing = false;
         this.currentTrack = 0;
         this.volume = 0.3; // Volumen inicial 30%
+        this.minimizado = false;
         
         // Lista de canciones (URLs o rutas locales)
         this.playlist = [
@@ -89,10 +90,18 @@ class ReproductorRomantico {
                 </div>
             </div>
             
-            <button class="btn-cerrar-reproductor" title="Cerrar">✖️</button>
+            <button class="btn-minimizar-reproductor" title="Minimizar">➖</button>
         `;
         
         document.body.appendChild(controles);
+        
+        // Crear botón flotante minimizado
+        const botonFlotante = document.createElement('button');
+        botonFlotante.className = 'reproductor-minimizado';
+        botonFlotante.title = 'Abrir reproductor';
+        botonFlotante.innerHTML = '🎵';
+        botonFlotante.style.display = 'none';
+        document.body.appendChild(botonFlotante);
     }
     
     bindEventos() {
@@ -118,9 +127,13 @@ class ReproductorRomantico {
         const btnVolumen = document.querySelector('.btn-volumen');
         btnVolumen.addEventListener('click', () => this.toggleMute());
         
-        // Cerrar reproductor
-        const btnCerrar = document.querySelector('.btn-cerrar-reproductor');
-        btnCerrar.addEventListener('click', () => this.cerrar());
+        // Minimizar reproductor
+        const btnMinimizar = document.querySelector('.btn-minimizar-reproductor');
+        btnMinimizar.addEventListener('click', () => this.minimizar());
+        
+        // Abrir desde minimizado
+        const btnFlotante = document.querySelector('.reproductor-minimizado');
+        btnFlotante.addEventListener('click', () => this.maximizar());
     }
     
     cargarCancion(index) {
@@ -224,13 +237,30 @@ class ReproductorRomantico {
         }
     }
     
-    cerrar() {
-        this.pause();
+    minimizar() {
+        this.minimizado = true;
         const reproductor = document.querySelector('.reproductor-container');
-        reproductor.style.animation = 'fadeOut 0.3s ease';
+        const botonFlotante = document.querySelector('.reproductor-minimizado');
+        
+        reproductor.style.animation = 'slideOutRight 0.3s ease';
         setTimeout(() => {
             reproductor.style.display = 'none';
+            botonFlotante.style.display = 'flex';
+            botonFlotante.style.animation = 'bounceIn 0.5s ease';
         }, 300);
+    }
+    
+    maximizar() {
+        this.minimizado = false;
+        const reproductor = document.querySelector('.reproductor-container');
+        const botonFlotante = document.querySelector('.reproductor-minimizado');
+        
+        botonFlotante.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => {
+            botonFlotante.style.display = 'none';
+            reproductor.style.display = 'flex';
+            reproductor.style.animation = 'slideInRight 0.5s ease';
+        }, 200);
     }
     
     mostrar() {
