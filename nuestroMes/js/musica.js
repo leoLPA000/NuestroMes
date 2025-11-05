@@ -11,26 +11,39 @@ class ReproductorRomantico {
         this.volume = 0.3; // Volumen inicial 30%
         this.minimizado = false;
         
-        // Lista de canciones (URLs o rutas locales)
-        this.playlist = [
+        // Lista de canciones base (URLs o rutas locales)
+        this.playlistBase = [
             {
                 titulo: 'Canción Romántica 1',
                 artista: 'Artista',
-                src: 'audio/cancion1.mp3'
+                src: 'audio/cancion1.mp3',
+                tipo: 'base'
             },
             {
                 titulo: 'Canción Romántica 2',
                 artista: 'Artista',
-                src: 'audio/cancion2.mp3'
+                src: 'audio/cancion2.mp3',
+                tipo: 'base'
             },
             {
                 titulo: 'Canción Romántica 3',
                 artista: 'Artista',
-                src: 'audio/cancion3.mp3'
+                src: 'audio/cancion3.mp3',
+                tipo: 'base'
             }
         ];
         
+        this.playlist = [];
+        this.cargarPlaylist();
         this.init();
+    }
+    
+    cargarPlaylist() {
+        // Cargar canciones personalizadas desde localStorage
+        const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
+        
+        // Combinar canciones base con personalizadas
+        this.playlist = [...this.playlistBase, ...cancionesPersonalizadas];
     }
     
     init() {
@@ -78,6 +91,14 @@ class ReproductorRomantico {
                 
                 <button class="btn-control btn-siguiente" title="Siguiente">
                     <span>⏭️</span>
+                </button>
+                
+                <button class="btn-control btn-agregar-musica" title="Agregar canción">
+                    <span>➕</span>
+                </button>
+                
+                <button class="btn-control btn-ver-playlist" title="Ver playlist">
+                    <span>📋</span>
                 </button>
                 
                 <div class="volumen-container">
@@ -134,6 +155,14 @@ class ReproductorRomantico {
         // Abrir desde minimizado
         const btnFlotante = document.querySelector('.reproductor-minimizado');
         btnFlotante.addEventListener('click', () => this.maximizar());
+        
+        // Agregar música
+        const btnAgregar = document.querySelector('.btn-agregar-musica');
+        btnAgregar.addEventListener('click', () => this.abrirFormularioCancion());
+        
+        // Ver playlist
+        const btnPlaylist = document.querySelector('.btn-ver-playlist');
+        btnPlaylist.addEventListener('click', () => this.mostrarPlaylist());
     }
     
     cargarCancion(index) {
@@ -267,6 +296,233 @@ class ReproductorRomantico {
         const reproductor = document.querySelector('.reproductor-container');
         reproductor.style.display = 'flex';
         reproductor.style.animation = 'fadeIn 0.3s ease';
+    }
+    
+    abrirFormularioCancion() {
+        // Pausar música si está sonando
+        if (this.playing) this.pause();
+        
+        // Crear modal de formulario
+        const modal = document.createElement('div');
+        modal.className = 'modal-formulario-musica';
+        modal.innerHTML = `
+            <div class="modal-overlay-musica"></div>
+            <div class="modal-contenido-musica">
+                <h2>🎵 Agregar Nueva Canción</h2>
+                <p class="subtitulo-modal">Sube una canción especial para nosotros</p>
+                
+                <form id="formNuevaCancion" class="form-nueva-cancion">
+                    <div class="form-grupo">
+                        <label for="inputAudio">Seleccionar archivo de audio:</label>
+                        <input type="file" id="inputAudio" accept="audio/*" required>
+                        <p class="hint-texto">Formatos: MP3, WAV, OGG, M4A</p>
+                    </div>
+                    
+                    <div class="form-grupo">
+                        <label for="tituloCancion">Título de la canción:</label>
+                        <input type="text" id="tituloCancion" placeholder="Ej: Nuestra Canción" maxlength="50" required>
+                    </div>
+                    
+                    <div class="form-grupo">
+                        <label for="artistaCancion">Artista:</label>
+                        <input type="text" id="artistaCancion" placeholder="Ej: Artista Favorito" maxlength="50" required>
+                    </div>
+                    
+                    <div class="info-archivo">
+                        <p>📁 <span id="nombreArchivo">Ningún archivo seleccionado</span></p>
+                        <p>⏱️ <span id="duracionArchivo">--:--</span></p>
+                    </div>
+                    
+                    <div class="form-botones">
+                        <button type="submit" class="btn-guardar-cancion">💾 Guardar Canción</button>
+                        <button type="button" class="btn-cancelar-cancion">❌ Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Info de archivo de audio
+        const inputAudio = document.getElementById('inputAudio');
+        const nombreArchivo = document.getElementById('nombreArchivo');
+        const duracionArchivo = document.getElementById('duracionArchivo');
+        
+        inputAudio.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                nombreArchivo.textContent = file.name;
+                
+                // Obtener duración del audio
+                const audioTemp = new Audio();
+                audioTemp.src = URL.createObjectURL(file);
+                audioTemp.addEventListener('loadedmetadata', () => {
+                    const minutos = Math.floor(audioTemp.duration / 60);
+                    const segundos = Math.floor(audioTemp.duration % 60);
+                    duracionArchivo.textContent = `${minutos}:${segundos.toString().padStart(2, '0')}`;
+                });
+            }
+        });
+        
+        // Guardar canción
+        document.getElementById('formNuevaCancion').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const file = inputAudio.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const nuevaCancion = {
+                    titulo: document.getElementById('tituloCancion').value,
+                    artista: document.getElementById('artistaCancion').value,
+                    src: event.target.result, // Base64 del audio
+                    tipo: 'personalizada',
+                    id: Date.now()
+                };
+                
+                this.guardarCancion(nuevaCancion);
+                modal.remove();
+                
+                // Mostrar notificación
+                this.mostrarNotificacion('¡Canción agregada exitosamente! 🎵💕', 'success');
+                
+                // Recargar playlist
+                this.cargarPlaylist();
+            };
+            reader.readAsDataURL(file);
+        });
+        
+        // Cancelar
+        modal.querySelector('.btn-cancelar-cancion').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        modal.querySelector('.modal-overlay-musica').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        // Animación de entrada
+        setTimeout(() => modal.classList.add('active'), 10);
+    }
+    
+    guardarCancion(cancion) {
+        // Cargar canciones existentes
+        const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
+        
+        // Agregar nueva canción
+        cancionesPersonalizadas.push(cancion);
+        
+        // Guardar en localStorage
+        localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesPersonalizadas));
+    }
+    
+    eliminarCancion(id) {
+        if (!confirm('¿Estás seguro de eliminar esta canción? 🗑️')) return;
+        
+        const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
+        const cancionesFiltradas = cancionesPersonalizadas.filter(c => c.id !== id);
+        
+        localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesFiltradas));
+        
+        // Recargar playlist
+        this.cargarPlaylist();
+        
+        // Si la canción eliminada es la actual, parar y cargar otra
+        if (this.playlist[this.currentTrack]?.id === id) {
+            this.pause();
+            this.cargarCancion(0);
+        }
+        
+        this.mostrarNotificacion('Canción eliminada correctamente 🗑️', 'info');
+    }
+    
+    mostrarNotificacion(mensaje, tipo) {
+        const notif = document.createElement('div');
+        notif.className = `notificacion-musica ${tipo}`;
+        notif.textContent = mensaje;
+        
+        document.body.appendChild(notif);
+        
+        setTimeout(() => notif.classList.add('show'), 10);
+        
+        setTimeout(() => {
+            notif.classList.remove('show');
+            setTimeout(() => notif.remove(), 300);
+        }, 3000);
+    }
+    
+    mostrarPlaylist() {
+        // Pausar música
+        if (this.playing) this.pause();
+        
+        // Crear modal de playlist
+        const modal = document.createElement('div');
+        modal.className = 'modal-playlist';
+        modal.innerHTML = `
+            <div class="modal-overlay-playlist"></div>
+            <div class="modal-contenido-playlist">
+                <h2>🎵 Mi Playlist Romántica</h2>
+                <p class="subtitulo-modal">${this.playlist.length} canción${this.playlist.length !== 1 ? 'es' : ''} en total</p>
+                
+                <div class="lista-canciones">
+                    ${this.playlist.map((cancion, index) => `
+                        <div class="cancion-item ${index === this.currentTrack ? 'actual' : ''}" data-index="${index}">
+                            <div class="cancion-numero">${index + 1}</div>
+                            <div class="cancion-info-item">
+                                <div class="cancion-titulo-item">${cancion.titulo}</div>
+                                <div class="cancion-artista-item">${cancion.artista}</div>
+                            </div>
+                            ${cancion.tipo === 'personalizada' ? `
+                                <button class="btn-eliminar-cancion" data-id="${cancion.id}" title="Eliminar">
+                                    🗑️
+                                </button>
+                            ` : '<div class="cancion-badge">Original</div>'}
+                            <button class="btn-reproducir-cancion" data-index="${index}" title="Reproducir">
+                                ▶️
+                            </button>
+                        </div>
+                    `).join('')}
+                </div>
+                
+                <button class="btn-cerrar-playlist">✖️ Cerrar</button>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Eventos de eliminar
+        modal.querySelectorAll('.btn-eliminar-cancion').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(btn.dataset.id);
+                this.eliminarCancion(id);
+                modal.remove();
+            });
+        });
+        
+        // Eventos de reproducir
+        modal.querySelectorAll('.btn-reproducir-cancion').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const index = parseInt(btn.dataset.index);
+                this.cargarCancion(index);
+                this.play();
+                modal.remove();
+            });
+        });
+        
+        // Cerrar
+        modal.querySelector('.btn-cerrar-playlist').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        modal.querySelector('.modal-overlay-playlist').addEventListener('click', () => {
+            modal.remove();
+        });
+        
+        // Animación
+        setTimeout(() => modal.classList.add('active'), 10);
     }
 }
 

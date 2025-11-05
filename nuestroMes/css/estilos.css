@@ -1038,6 +1038,352 @@ body {
     transform: scale(0.95);
 }
 
+/* Modal formulario música */
+.modal-formulario-musica {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-formulario-musica.active {
+    opacity: 1;
+}
+
+.modal-overlay-musica {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+}
+
+.modal-contenido-musica {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 550px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideInUp 0.4s ease;
+    z-index: 1;
+}
+
+.modal-contenido-musica h2 {
+    font-family: var(--font-cuerpo);
+    color: var(--rojo-amor);
+    margin-bottom: 10px;
+    font-size: 2rem;
+}
+
+.form-nueva-cancion {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.hint-texto {
+    font-size: 0.85rem;
+    color: #636e72;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.info-archivo {
+    background: linear-gradient(135deg, rgba(255, 194, 209, 0.2), rgba(142, 68, 173, 0.1));
+    padding: 15px;
+    border-radius: 12px;
+    border: 2px dashed var(--rosa-claro);
+}
+
+.info-archivo p {
+    margin: 8px 0;
+    font-size: 0.95rem;
+    color: var(--morado-oscuro);
+}
+
+.btn-guardar-cancion,
+.btn-cancelar-cancion {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-guardar-cancion {
+    background: linear-gradient(135deg, #00b894, #00cec9);
+    color: white;
+}
+
+.btn-guardar-cancion:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 184, 148, 0.3);
+}
+
+.btn-cancelar-cancion {
+    background: #dfe6e9;
+    color: #636e72;
+}
+
+.btn-cancelar-cancion:hover {
+    background: #b2bec3;
+    transform: translateY(-2px);
+}
+
+/* Modal playlist */
+.modal-playlist {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 100001;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.modal-playlist.active {
+    opacity: 1;
+}
+
+.modal-overlay-playlist {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(10px);
+}
+
+.modal-contenido-playlist {
+    position: relative;
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    max-width: 700px;
+    width: 90%;
+    max-height: 80vh;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideInUp 0.4s ease;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-contenido-playlist h2 {
+    font-family: var(--font-cuerpo);
+    color: var(--rojo-amor);
+    margin-bottom: 10px;
+    font-size: 2rem;
+}
+
+.lista-canciones {
+    overflow-y: auto;
+    max-height: 500px;
+    margin: 20px 0;
+}
+
+.cancion-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.cancion-item:hover {
+    background: rgba(255, 194, 209, 0.3);
+    transform: translateX(5px);
+}
+
+.cancion-item.actual {
+    background: linear-gradient(135deg, rgba(230, 57, 70, 0.1), rgba(142, 68, 173, 0.1));
+    border-color: var(--rojo-amor);
+}
+
+.cancion-numero {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--rojo-amor), var(--morado-suave));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.cancion-info-item {
+    flex: 1;
+}
+
+.cancion-titulo-item {
+    font-weight: bold;
+    color: var(--morado-oscuro);
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+}
+
+.cancion-artista-item {
+    font-size: 0.9rem;
+    color: #636e72;
+}
+
+.cancion-badge {
+    background: linear-gradient(135deg, #00b894, #00cec9);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.btn-eliminar-cancion {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-eliminar-cancion:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.4);
+}
+
+.btn-reproducir-cancion {
+    background: linear-gradient(135deg, var(--rojo-amor), var(--morado-suave));
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-reproducir-cancion:hover {
+    transform: scale(1.1);
+    box-shadow: 0 5px 20px rgba(142, 68, 173, 0.4);
+}
+
+.btn-cerrar-playlist {
+    background: #dfe6e9;
+    color: #636e72;
+    border: none;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-cerrar-playlist:hover {
+    background: #b2bec3;
+    transform: translateY(-2px);
+}
+
+/* Notificación música */
+.notificacion-musica {
+    position: fixed;
+    bottom: 100px;
+    right: -400px;
+    background: white;
+    padding: 15px 30px;
+    border-radius: 50px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    z-index: 100002;
+    font-size: 1.05rem;
+    font-weight: 600;
+    transition: right 0.3s ease;
+}
+
+.notificacion-musica.show {
+    right: 20px;
+}
+
+.notificacion-musica.success {
+    background: linear-gradient(135deg, #00b894, #00cec9);
+    color: white;
+}
+
+.notificacion-musica.info {
+    background: linear-gradient(135deg, #74b9ff, #a29bfe);
+    color: white;
+}
+
+/* Modo oscuro para música */
+body.tema-oscuro .modal-contenido-musica,
+body.tema-oscuro .modal-contenido-playlist {
+    background: var(--bg-oscuro-card);
+    color: var(--texto-oscuro);
+}
+
+body.tema-oscuro .modal-contenido-musica h2,
+body.tema-oscuro .modal-contenido-playlist h2 {
+    color: var(--acento-oscuro);
+}
+
+body.tema-oscuro .hint-texto {
+    color: #d0d0d0;
+}
+
+body.tema-oscuro .info-archivo {
+    background: rgba(255, 107, 157, 0.1);
+    border-color: rgba(255, 107, 157, 0.3);
+}
+
+body.tema-oscuro .info-archivo p {
+    color: var(--acento-oscuro);
+}
+
+body.tema-oscuro .cancion-item {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+body.tema-oscuro .cancion-item:hover {
+    background: rgba(255, 107, 157, 0.1);
+}
+
+body.tema-oscuro .cancion-titulo-item {
+    color: #ffc2d1;
+}
+
+body.tema-oscuro .cancion-artista-item {
+    color: #d0d0d0;
+}
+
 /* ========================================
    📸 GALERÍA DE FOTOS
    ======================================== */
