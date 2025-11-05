@@ -42,8 +42,17 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Mensajes románticos personalizados para Rocío - <?php echo $tituloCategoria; ?>">
+    <meta name="theme-color" content="#e63946">
     <title><?php echo $tituloCategoria; ?> - Para Rocío</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="img/corazon.svg">
+    
+    <!-- Estilos -->
     <link rel="stylesheet" href="css/estilos.css">
+    
+    <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
@@ -51,21 +60,21 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
 <body class="pagina-mensajes">
     <div class="container">
         <header class="header-mensajes">
-            <a href="index.php" class="btn-volver">← Volver</a>
+            <a href="index.php" class="btn-volver" aria-label="Volver a la página principal">← Volver</a>
             <h1 class="titulo-categoria"><?php echo $tituloCategoria; ?></h1>
             <p class="dedicatoria">Para mi Rocío hermosa 💕</p>
         </header>
 
         <section class="contenedor-mensajes">
             <?php if ($error): ?>
-                <div class="error-mensaje">
+                <div class="error-mensaje" role="alert">
                     <p><?php echo $error; ?></p>
-                    <a href="index.php" class="btn-inicio">Volver al inicio</a>
+                    <a href="index.php" class="btn-inicio" aria-label="Volver a la página principal">Volver al inicio</a>
                 </div>
             <?php else: ?>
-                <div class="lista-mensajes">
+                <div class="lista-mensajes" role="list" aria-label="Lista de mensajes románticos">
                     <?php foreach ($mensajes as $index => $mensaje): ?>
-                        <div class="mensaje-card" data-index="<?php echo $index; ?>">
+                        <article class="mensaje-card" data-index="<?php echo $index; ?>" role="listitem">
                             <div class="mensaje-contenido">
                                 <p class="texto-mensaje"><?php echo nl2br(htmlspecialchars($mensaje['texto'])); ?></p>
                                 <?php if (isset($mensaje['nota'])): ?>
@@ -73,14 +82,14 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
                                 <?php endif; ?>
                             </div>
                             <div class="mensaje-footer">
-                                <span class="mensaje-emoji"><?php echo $mensaje['emoji'] ?? '💕'; ?></span>
+                                <span class="mensaje-emoji" role="img" aria-label="Emoji decorativo"><?php echo $mensaje['emoji'] ?? '💕'; ?></span>
                             </div>
-                        </div>
+                        </article>
                     <?php endforeach; ?>
                 </div>
 
                 <div class="mensaje-aleatorio">
-                    <button id="btnMensajeAleatorio" class="btn-aleatorio">
+                    <button id="btnMensajeAleatorio" class="btn-aleatorio" aria-label="Mostrar un mensaje aleatorio sorpresa">
                         ✨ Mostrar mensaje sorpresa
                     </button>
                 </div>
@@ -95,7 +104,11 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
     <!-- Efectos visuales -->
     <div id="efectos-fondo"></div>
     
+    <!-- Contenedor para partículas del cursor -->
+    <div id="cursor-particles"></div>
+    
     <script src="js/efectos.js"></script>
+    <script src="js/cursorEffects.js"></script>
     <script>
         // Mensaje aleatorio interactivo
         document.addEventListener('DOMContentLoaded', function() {

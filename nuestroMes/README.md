@@ -11,8 +11,11 @@
 - 💌 **Mensajes personalizados**: Más de 40 mensajes románticos en español
 - 🎨 **Diseño romántico**: Colores rojo (#e63946) y morado (#8e44ad)
 - ✨ **Animaciones suaves**: Corazones flotantes, pétalos cayendo, efectos hover
-- 📱 **Responsive**: Optimizado para móvil y escritorio
+- �️ **Cursor personalizado**: Efectos mágicos que siguen el mouse (desktop)
+- 💕 **Partículas románticas**: Corazones, chispas, burbujas y estrellas
+- �📱 **Responsive**: Optimizado para móvil y escritorio
 - 🎭 **Interactivo**: Botón de mensaje sorpresa, efectos al hacer clic
+- ⏱️ **Contador de días**: Calcula automáticamente el tiempo juntos
 
 ---
 

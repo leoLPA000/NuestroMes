@@ -1,0 +1,25 @@
+# NuestroMes - Página Romántica para Rocío
+
+## Archivos del proyecto
+*.php
+*.css
+*.js
+*.json
+*.svg
+*.md
+
+## Carpetas
+/css/
+/js/
+/data/
+/img/
+
+## Configuración
+.htaccess
+
+## Documentación
+README.md
+
+---
+
+**Proyecto creado con ❤️ por Leo para Rocío Milagros Fernández**

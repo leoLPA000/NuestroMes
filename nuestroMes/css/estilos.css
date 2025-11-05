@@ -390,6 +390,35 @@ body {
     font-weight: 700;
 }
 
+.contador-dias {
+    background: linear-gradient(135deg, var(--rosa-claro), var(--blanco-suave));
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 2px solid var(--rojo-amor);
+}
+
+.texto-contador {
+    font-size: 0.9rem;
+    color: var(--morado-oscuro);
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.numero-dias {
+    font-family: var(--font-cuerpo);
+    font-size: 2rem;
+    color: var(--rojo-amor);
+    font-weight: 700;
+    margin: 10px 0;
+}
+
+.texto-pequeno {
+    font-size: 0.85rem;
+    color: var(--morado-suave);
+    font-style: italic;
+}
+
 /* ========================================
    ANIMACIONES
    ======================================== */
@@ -444,6 +473,228 @@ body {
     }
     50% {
         transform: translateY(-10px);
+    }
+}
+
+/* ========================================
+   ACCESIBILIDAD - REDUCIR ANIMACIONES
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .corazon-flotante,
+    .petalo-rosa,
+    .corazon-explosion {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   MEJORAS DE RENDIMIENTO
+   ======================================== */
+.categoria-card,
+.mensaje-card,
+.btn-aleatorio,
+.btn-volver {
+    will-change: transform;
+}
+
+.categoria-card:not(:hover),
+.mensaje-card:not(:hover) {
+    will-change: auto;
+}
+
+/* ========================================
+   EFECTOS DE CURSOR PERSONALIZADOS
+   ======================================== */
+#cursor-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.cursor-particle {
+    position: fixed;
+    pointer-events: none;
+    user-select: none;
+    animation: particleFloat 1s ease-out forwards;
+    opacity: 1;
+}
+
+.cursor-particle.heart {
+    animation: particleFloatHeart 1s ease-out forwards;
+}
+
+.cursor-particle.sparkle {
+    width: 4px;
+    height: 4px;
+    background: radial-gradient(circle, #FFD700, transparent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px #FFD700;
+    animation: sparkleFloat 0.8s ease-out forwards;
+}
+
+.cursor-particle.bubble {
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(255, 182, 193, 0.3));
+    border-radius: 50%;
+    border: 1px solid rgba(255, 182, 193, 0.5);
+    animation: bubbleFloat 1.2s ease-out forwards;
+}
+
+.cursor-particle.star {
+    color: #FFD700;
+    font-size: 10px;
+    animation: starFloat 1s ease-out forwards;
+}
+
+.cursor-particle.star::before {
+    content: '✨';
+}
+
+/* Cursor personalizado para desktop */
+.custom-cursor {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--rojo-amor);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 10000;
+    transition: all 0.1s ease;
+    mix-blend-mode: difference;
+    background: rgba(255, 182, 193, 0.3);
+    box-shadow: 0 0 10px rgba(230, 57, 70, 0.5);
+}
+
+.custom-cursor.clicking {
+    transform: scale(0.8);
+    background: rgba(230, 57, 70, 0.5);
+    box-shadow: 0 0 20px rgba(230, 57, 70, 0.8);
+}
+
+/* Ocultar cursor predeterminado en desktop */
+@media (hover: hover) and (pointer: fine) {
+    body, a, button, .categoria-card, .mensaje-card {
+        cursor: none !important;
+    }
+}
+
+/* Animaciones de partículas */
+@keyframes particleFloat {
+    0% {
+        transform: translateY(0) translateX(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-80px) translateX(var(--random-x, 0)) scale(0.3);
+        opacity: 0;
+    }
+}
+
+@keyframes particleFloatHeart {
+    0% {
+        transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: translateY(-40px) translateX(var(--random-x, 0)) scale(1.2) rotate(15deg);
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateY(-100px) translateX(var(--random-x, 0)) scale(0.5) rotate(30deg);
+        opacity: 0;
+    }
+}
+
+@keyframes sparkleFloat {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-60px) scale(0.2);
+        opacity: 0;
+    }
+}
+
+@keyframes bubbleFloat {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translateY(-40px) scale(1);
+        opacity: 0.6;
+    }
+    100% {
+        transform: translateY(-90px) scale(1.5);
+        opacity: 0;
+    }
+}
+
+@keyframes starFloat {
+    0% {
+        transform: translateY(0) rotate(0deg) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-70px) rotate(180deg) scale(0.3);
+        opacity: 0;
+    }
+}
+
+@keyframes rippleEffect {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 0.8;
+    }
+    100% {
+        width: 300px;
+        height: 300px;
+        opacity: 0;
+        transform: translate(-150px, -150px);
+    }
+}
+
+/* Desactivar efectos de cursor en móvil */
+@media (max-width: 768px) {
+    .custom-cursor {
+        display: none;
+    }
+    
+    body, a, button, .categoria-card, .mensaje-card {
+        cursor: auto !important;
+    }
+}
+
+/* Modo reducción de movimiento - desactivar efectos de cursor */
+@media (prefers-reduced-motion: reduce) {
+    .custom-cursor,
+    .cursor-particle {
+        display: none !important;
+    }
+    
+    @keyframes rippleEffect {
+        0%, 100% {
+            width: 0;
+            height: 0;
+            opacity: 0;
+        }
     }
 }
 

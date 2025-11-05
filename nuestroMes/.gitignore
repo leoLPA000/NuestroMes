@@ -1,0 +1,30 @@
+# Ignorar archivos de sistema y temporales
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignorar archivos del editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignorar logs
+*.log
+error_log
+
+# Ignorar caché de PHP
+*.cache
+
+# Ignorar archivos de backup
+*.bak
+*.backup
+*~
+
+# Ignorar configuraciones locales (si existen)
+config.local.php
+.env
+
+# Mantener carpetas vacías
+!.gitkeep
