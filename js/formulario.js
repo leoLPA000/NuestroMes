@@ -280,7 +280,7 @@ class FormularioMensajes {
         document.getElementById('vistaPrevia').style.display = 'none';
     }
     
-    guardarMensaje(e) {
+    async guardarMensaje(e) {
         e.preventDefault();
         
         const categoria = document.getElementById('categoriaSelect').value;
