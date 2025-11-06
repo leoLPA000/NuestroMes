@@ -65,75 +65,135 @@
     <script src="js/formulario.js"></script>
     
     <script>
-        // Cargar y mostrar mensajes personalizados
-        function cargarMensajesPersonalizados() {
-            const mensajes = JSON.parse(localStorage.getItem('mensajesPersonalizados') || '[]');
+        // Cargar y mostrar mensajes personalizados desde Supabase
+        async function cargarMensajesPersonalizados() {
             const contenedor = document.getElementById('mensajesPersonalizados');
             const filtro = document.getElementById('filtroCategoria').value;
             
-            // Filtrar mensajes si es necesario
-            const mensajesFiltrados = filtro === 'todas' 
-                ? mensajes 
-                : mensajes.filter(m => m.categoria === filtro);
-            
-            if (mensajesFiltrados.length === 0) {
+            try {
+                // Verificar que Supabase esté inicializado
+                if (!window.supabaseClient) {
+                    console.error('❌ Supabase no está inicializado');
+                    contenedor.innerHTML = `
+                        <div class="mensaje-vacio-grande">
+                            <div class="icono-vacio">⚠️</div>
+                            <h3>Error de conexión</h3>
+                            <p>No se pudo conectar a Supabase. Verifica tu conexión.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Cargar mensajes desde Supabase
+                const { data: mensajes, error } = await window.supabaseClient
+                    .from('mensajes')
+                    .select('*')
+                    .order('creado_en', { ascending: false });
+                
+                if (error) {
+                    console.error('❌ Error al cargar mensajes:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Mensajes cargados desde Supabase:', mensajes.length);
+                
+                // Filtrar mensajes si es necesario
+                const mensajesFiltrados = filtro === 'todas' 
+                    ? mensajes 
+                    : mensajes.filter(m => m.categoria === filtro);
+                
+                if (mensajesFiltrados.length === 0) {
+                    contenedor.innerHTML = `
+                        <div class="mensaje-vacio-grande">
+                            <div class="icono-vacio">✍️</div>
+                            <h3>No hay mensajes aquí todavía</h3>
+                            <p>Usa el botón "Agregar Mensaje" para crear tu primer mensaje personalizado</p>
+                            <button onclick="document.querySelector('.btn-formulario').click()" class="btn-crear-primero">
+                                ✍️ Crear mi primer mensaje
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                contenedor.innerHTML = mensajesFiltrados.map(mensaje => {
+                    // Formatear la fecha
+                    const fecha = new Date(mensaje.creado_en).toLocaleDateString('es-ES', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    });
+                    
+                    return `
+                        <article class="mensaje-card mensaje-personalizado" data-id="${mensaje.id}">
+                            <div class="mensaje-header-personalizado">
+                                <span class="emoji-grande">${mensaje.emoji || '💕'}</span>
+                                <span class="badge-personalizado">Tu mensaje</span>
+                            </div>
+                            <p class="mensaje-texto">${mensaje.texto}</p>
+                            ${mensaje.nota ? `<p class="mensaje-nota-personalizado">📝 ${mensaje.nota}</p>` : ''}
+                            <div class="mensaje-footer-personalizado">
+                                <span class="mensaje-firma">— ${mensaje.autor || 'Anónimo'}</span>
+                                <span class="mensaje-fecha-creacion">${fecha}</span>
+                            </div>
+                            <button class="btn-eliminar-mensaje-vista" data-id="${mensaje.id}" title="Eliminar mensaje">
+                                🗑️ Eliminar
+                            </button>
+                        </article>
+                    `;
+                }).join('');
+                
+                // Bind eventos de eliminación
+                document.querySelectorAll('.btn-eliminar-mensaje-vista').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const id = e.target.dataset.id;
+                        eliminarMensajeVista(id);
+                    });
+                });
+                
+            } catch (err) {
+                console.error('❌ Error al cargar mensajes:', err);
                 contenedor.innerHTML = `
                     <div class="mensaje-vacio-grande">
-                        <div class="icono-vacio">✍️</div>
-                        <h3>No hay mensajes aquí todavía</h3>
-                        <p>Usa el botón "Agregar Mensaje" para crear tu primer mensaje personalizado</p>
-                        <button onclick="document.querySelector('.btn-formulario').click()" class="btn-crear-primero">
-                            ✍️ Crear mi primer mensaje
-                        </button>
+                        <div class="icono-vacio">⚠️</div>
+                        <h3>Error al cargar mensajes</h3>
+                        <p>${err.message}</p>
                     </div>
                 `;
-                return;
             }
-            
-            // Ordenar por fecha (más recientes primero)
-            mensajesFiltrados.sort((a, b) => b.id - a.id);
-            
-            contenedor.innerHTML = mensajesFiltrados.map(mensaje => `
-                <article class="mensaje-card mensaje-personalizado" data-id="${mensaje.id}">
-                    <div class="mensaje-header-personalizado">
-                        <span class="emoji-grande">${mensaje.emoji}</span>
-                        <span class="badge-personalizado">Tu mensaje</span>
-                    </div>
-                    <p class="mensaje-texto">${mensaje.texto}</p>
-                    ${mensaje.nota ? `<p class="mensaje-nota-personalizado">📝 ${mensaje.nota}</p>` : ''}
-                    <div class="mensaje-footer-personalizado">
-                        <span class="mensaje-firma">— ${mensaje.autor}</span>
-                        <span class="mensaje-fecha-creacion">${mensaje.fecha}</span>
-                    </div>
-                    <button class="btn-eliminar-mensaje-vista" data-id="${mensaje.id}" title="Eliminar mensaje">
-                        🗑️ Eliminar
-                    </button>
-                </article>
-            `).join('');
-            
-            // Bind eventos de eliminación
-            document.querySelectorAll('.btn-eliminar-mensaje-vista').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const id = parseInt(e.target.dataset.id);
-                    eliminarMensajeVista(id);
-                });
-            });
         }
         
-        function eliminarMensajeVista(id) {
+        async function eliminarMensajeVista(id) {
             if (!confirm('¿Estás segura de que quieres eliminar este mensaje?')) {
                 return;
             }
             
-            let mensajes = JSON.parse(localStorage.getItem('mensajesPersonalizados') || '[]');
-            mensajes = mensajes.filter(m => m.id !== id);
-            localStorage.setItem('mensajesPersonalizados', JSON.stringify(mensajes));
-            
-            // Recargar lista
-            cargarMensajesPersonalizados();
-            
-            // Mostrar notificación
-            mostrarNotificacion('Mensaje eliminado correctamente', 'info');
+            try {
+                if (!window.supabaseClient) {
+                    console.error('❌ Supabase no está inicializado');
+                    mostrarNotificacion('Error: Supabase no inicializado', 'info');
+                    return;
+                }
+                
+                const { error } = await window.supabaseClient
+                    .from('mensajes')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                console.log('✅ Mensaje eliminado de Supabase');
+                
+                // Recargar lista
+                await cargarMensajesPersonalizados();
+                
+                // Mostrar notificación
+                mostrarNotificacion('Mensaje eliminado correctamente', 'info');
+                
+            } catch (err) {
+                console.error('❌ Error al eliminar mensaje:', err);
+                mostrarNotificacion('Error al eliminar mensaje: ' + err.message, 'info');
+            }
         }
         
         function mostrarNotificacion(mensaje, tipo) {
