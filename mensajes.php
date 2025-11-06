@@ -60,7 +60,7 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
 <body class="pagina-mensajes">
     <div class="container">
         <header class="header-mensajes">
-            <a href="index.php" class="btn-volver" aria-label="Volver a la página principal">← Volver</a>
+            <a href="index.html" class="btn-volver" aria-label="Volver a la página principal">← Volver</a>
             <h1 class="titulo-categoria"><?php echo $tituloCategoria; ?></h1>
             <p class="dedicatoria">Para mi Rocío hermosa 💕</p>
         </header>
@@ -69,7 +69,7 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
             <?php if ($error): ?>
                 <div class="error-mensaje" role="alert">
                     <p><?php echo $error; ?></p>
-                    <a href="index.php" class="btn-inicio" aria-label="Volver a la página principal">Volver al inicio</a>
+                    <a href="index.html" class="btn-inicio" aria-label="Volver a la página principal">Volver al inicio</a>
                 </div>
             <?php else: ?>
                 <div class="lista-mensajes" role="list" aria-label="Lista de mensajes románticos">
