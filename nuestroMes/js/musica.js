@@ -11,54 +11,123 @@ class ReproductorRomantico {
         this.volume = 0.3; // Volumen inicial 30%
         this.minimizado = false;
         
-        // Lista de canciones base (URLs o rutas locales)
-        this.playlistBase = [
-            {
-                titulo: 'Canción Romántica 1',
-                artista: 'Artista',
-                src: 'audio/cancion1.mp3',
-                tipo: 'base'
-            },
-            {
-                titulo: 'Canción Romántica 2',
-                artista: 'Artista',
-                src: 'audio/cancion2.mp3',
-                tipo: 'base'
-            },
-            {
-                titulo: 'Canción Romántica 3',
-                artista: 'Artista',
-                src: 'audio/cancion3.mp3',
-                tipo: 'base'
-            }
-        ];
+        // Lista de canciones base (vacía - solo canciones personalizadas)
+        this.playlistBase = [];
         
         this.playlist = [];
-        this.cargarPlaylist();
-        this.init();
+        
+        // Restaurar estado previo si existe
+        this.restaurarEstado();
+        
+        // Cargar playlist desde Supabase (si está disponible) y luego inicializar
+        this.cargarPlaylist().then(() => this.init());
     }
     
-    cargarPlaylist() {
-        // Cargar canciones personalizadas desde localStorage
-        const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
-        
-        // Combinar canciones base con personalizadas
-        this.playlist = [...this.playlistBase, ...cancionesPersonalizadas];
+    restaurarEstado() {
+        try {
+            const estado = JSON.parse(sessionStorage.getItem('reproductorEstado') || '{}');
+            if (estado.currentTrack !== undefined) this.currentTrack = estado.currentTrack;
+            if (estado.volume !== undefined) this.volume = estado.volume;
+            if (estado.minimizado !== undefined) this.minimizado = estado.minimizado;
+            if (estado.playing !== undefined) this.playing = estado.playing;
+        } catch (err) {
+            console.warn('No se pudo restaurar estado del reproductor:', err);
+        }
+    }
+    
+    guardarEstado() {
+        try {
+            const estado = {
+                currentTrack: this.currentTrack,
+                volume: this.volume,
+                minimizado: this.minimizado,
+                playing: this.playing,
+                currentTime: this.audio ? this.audio.currentTime : 0
+            };
+            sessionStorage.setItem('reproductorEstado', JSON.stringify(estado));
+        } catch (err) {
+            console.warn('No se pudo guardar estado del reproductor:', err);
+        }
+    }
+    
+    async cargarPlaylist() {
+        // Intentar cargar canciones personalizadas desde Supabase
+        try {
+            if (window.supabaseClient) {
+                const { data, error } = await window.supabaseClient
+                    .from('canciones')
+                    .select('*')
+                    .order('creado_en', { ascending: true });
+
+                if (error) throw error;
+
+                const cancionesPersonalizadas = (data || []).map(c => ({
+                    titulo: c.titulo,
+                    artista: c.artista,
+                    src: c.url,
+                    tipo: 'personalizada',
+                    id: c.id,
+                    path: c.path || null
+                }));
+
+                this.playlist = [...this.playlistBase, ...cancionesPersonalizadas];
+                return;
+            }
+        } catch (err) {
+            console.warn('Error cargando canciones desde Supabase:', err);
+        }
+
+        // Fallback localStorage (si Supabase no está disponible)
+        const cancionesPersonalizadasLocal = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
+        this.playlist = [...this.playlistBase, ...cancionesPersonalizadasLocal];
     }
     
     init() {
-        // Crear elemento de audio
+        // Crear elemento de audio con preload optimizado
         this.audio = new Audio();
         this.audio.volume = this.volume;
         this.audio.loop = false;
+        this.audio.preload = 'auto'; // Precargar el audio completo
+        this.audio.crossOrigin = 'anonymous'; // Para Supabase
+        
+        // Restaurar tiempo de reproducción si existe
+        const estadoPrevio = JSON.parse(sessionStorage.getItem('reproductorEstado') || '{}');
         
         // Evento cuando termina una canción
         this.audio.addEventListener('ended', () => {
             this.siguiente();
         });
         
-        // Cargar primera canción
-        this.cargarCancion(0);
+        // Guardar estado periódicamente mientras se reproduce (optimizado)
+        let ultimoGuardado = 0;
+        this.audio.addEventListener('timeupdate', () => {
+            if (this.playing) {
+                const ahora = Date.now();
+                // Guardar solo cada 2 segundos (en vez de cada frame)
+                if (ahora - ultimoGuardado > 2000) {
+                    this.guardarEstado();
+                    ultimoGuardado = ahora;
+                }
+            }
+        });
+        
+        // Evento cuando el audio está listo para reproducir
+        this.audio.addEventListener('canplay', () => {
+            // Si estaba reproduciéndose, reanudar inmediatamente
+            if (estadoPrevio.playing && !this.playing) {
+                this.play();
+            }
+        });
+        
+        // Cargar canción actual
+        this.cargarCancion(this.currentTrack);
+        
+        // Restaurar tiempo de reproducción (más rápido)
+        if (estadoPrevio.currentTime && estadoPrevio.playing) {
+            this.audio.addEventListener('loadedmetadata', () => {
+                this.audio.currentTime = estadoPrevio.currentTime;
+            }, { once: true });
+        }
         
         // Crear controles
         this.crearControles();
@@ -69,7 +138,7 @@ class ReproductorRomantico {
     
     crearControles() {
         const controles = document.createElement('div');
-        controles.className = 'reproductor-container';
+        controles.className = 'reproductor-container cargando';
         controles.innerHTML = `
             <div class="reproductor-info">
                 <span class="icono-musica">🎵</span>
@@ -115,6 +184,12 @@ class ReproductorRomantico {
         `;
         
         document.body.appendChild(controles);
+        
+        // Marcar como listo cuando el audio esté preparado
+        this.audio.addEventListener('canplaythrough', () => {
+            controles.classList.remove('cargando');
+            controles.classList.add('listo');
+        }, { once: true });
         
         // Crear botón flotante minimizado
         const botonFlotante = document.createElement('button');
@@ -170,6 +245,7 @@ class ReproductorRomantico {
             this.currentTrack = index;
             const cancion = this.playlist[index];
             this.audio.src = cancion.src;
+            this.guardarEstado();
             
             // Actualizar info visual
             const titulo = document.querySelector('.cancion-titulo');
@@ -189,29 +265,58 @@ class ReproductorRomantico {
     }
     
     play() {
-        this.audio.play().catch(err => {
-            console.log('Error al reproducir:', err);
-        });
-        this.playing = true;
+        // Intentar reproducir inmediatamente con manejo de promesas
+        const playPromise = this.audio.play();
         
+        if (playPromise !== undefined) {
+            playPromise
+                .then(() => {
+                    // Reproducción exitosa
+                    this.playing = true;
+                    this.guardarEstado();
+                    this.actualizarUI(true);
+                })
+                .catch(err => {
+                    // Si falla por política de autoplay, reintentamos después de interacción
+                    console.log('Esperando interacción del usuario para reproducir:', err);
+                    this.playing = false;
+                    
+                    // Reintentar cuando el usuario haga clic en cualquier parte
+                    const reintentar = () => {
+                        this.audio.play().then(() => {
+                            this.playing = true;
+                            this.guardarEstado();
+                            this.actualizarUI(true);
+                            document.removeEventListener('click', reintentar);
+                        }).catch(() => {});
+                    };
+                    document.addEventListener('click', reintentar, { once: true });
+                });
+        }
+    }
+    
+    actualizarUI(reproduciendo) {
         // Actualizar iconos
-        document.querySelector('.icono-play').style.display = 'none';
-        document.querySelector('.icono-pause').style.display = 'inline';
+        const iconoPlay = document.querySelector('.icono-play');
+        const iconoPause = document.querySelector('.icono-pause');
+        const iconoMusica = document.querySelector('.icono-musica');
         
-        // Animar icono de música
-        document.querySelector('.icono-musica').classList.add('pulsando');
+        if (iconoPlay) iconoPlay.style.display = reproduciendo ? 'none' : 'inline';
+        if (iconoPause) iconoPause.style.display = reproduciendo ? 'inline' : 'none';
+        if (iconoMusica) {
+            if (reproduciendo) {
+                iconoMusica.classList.add('pulsando');
+            } else {
+                iconoMusica.classList.remove('pulsando');
+            }
+        }
     }
     
     pause() {
         this.audio.pause();
         this.playing = false;
-        
-        // Actualizar iconos
-        document.querySelector('.icono-play').style.display = 'inline';
-        document.querySelector('.icono-pause').style.display = 'none';
-        
-        // Quitar animación
-        document.querySelector('.icono-musica').classList.remove('pulsando');
+        this.guardarEstado();
+        this.actualizarUI(false);
     }
     
     siguiente() {
@@ -364,33 +469,112 @@ class ReproductorRomantico {
             }
         });
         
-        // Guardar canción
-        document.getElementById('formNuevaCancion').addEventListener('submit', (e) => {
+        // Guardar canción: subir a Supabase Storage y guardar metadatos en tabla
+        document.getElementById('formNuevaCancion').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const file = inputAudio.files[0];
             if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const nuevaCancion = {
-                    titulo: document.getElementById('tituloCancion').value,
-                    artista: document.getElementById('artistaCancion').value,
-                    src: event.target.result, // Base64 del audio
-                    tipo: 'personalizada',
-                    id: Date.now()
-                };
-                
-                this.guardarCancion(nuevaCancion);
+
+            const titulo = document.getElementById('tituloCancion').value;
+            const artista = document.getElementById('artistaCancion').value;
+
+            // Mostrar indicador de carga
+            const btnGuardar = modal.querySelector('.btn-guardar-cancion');
+            const textoOriginal = btnGuardar.innerHTML;
+            btnGuardar.innerHTML = '⏳ Subiendo...';
+            btnGuardar.disabled = true;
+
+            try {
+                if (!window.supabaseClient) throw new Error('Supabase no inicializado');
+
+                console.log('📤 Iniciando subida de archivo:', file.name);
+
+                // Generar path seguro
+                const timestamp = Date.now();
+                const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const path = `musica/${timestamp}_${safeName}`;
+
+                console.log('📁 Path generado:', path);
+
+                // Subir archivo
+                const { data: uploadData, error: uploadError } = await window.supabaseClient
+                    .storage
+                    .from('archivos')
+                    .upload(path, file, { upsert: true });
+
+                if (uploadError) {
+                    console.error('❌ Error en upload:', uploadError);
+                    throw uploadError;
+                }
+
+                console.log('✅ Archivo subido:', uploadData);
+
+                // Obtener URL pública
+                const { data: publicUrlData } = window.supabaseClient
+                    .storage
+                    .from('archivos')
+                    .getPublicUrl(path);
+
+                const publicURL = publicUrlData?.publicUrl || '';
+                console.log('🔗 URL pública:', publicURL);
+
+                // Insertar metadatos en la tabla canciones
+                const { data: insertData, error: insertError } = await window.supabaseClient
+                    .from('canciones')
+                    .insert([{ titulo, artista, url: publicURL, tipo: 'personalizada', path }])
+                    .select();
+
+                if (insertError) {
+                    console.error('❌ Error en insert:', insertError);
+                    throw insertError;
+                }
+
+                console.log('✅ Metadata insertada:', insertData);
+
                 modal.remove();
-                
-                // Mostrar notificación
                 this.mostrarNotificacion('¡Canción agregada exitosamente! 🎵💕', 'success');
-                
-                // Recargar playlist
-                this.cargarPlaylist();
-            };
-            reader.readAsDataURL(file);
+
+                // Recargar playlist desde Supabase
+                await this.cargarPlaylist();
+            } catch (err) {
+                console.error('❌ Error completo al subir/guardar canción:', err);
+                console.error('Detalles del error:', {
+                    message: err.message,
+                    name: err.name,
+                    stack: err.stack
+                });
+
+                // Restaurar botón
+                btnGuardar.innerHTML = textoOriginal;
+                btnGuardar.disabled = false;
+
+                // Intentar fallback a localStorage con Base64
+                console.log('🔄 Intentando fallback a localStorage...');
+                try {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        const nuevaCancion = {
+                            titulo: titulo,
+                            artista: artista,
+                            src: event.target.result, // Base64
+                            tipo: 'personalizada',
+                            id: Date.now()
+                        };
+                        
+                        const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
+                        cancionesPersonalizadas.push(nuevaCancion);
+                        localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesPersonalizadas));
+                        
+                        this.playlist.push(nuevaCancion);
+                        modal.remove();
+                        this.mostrarNotificacion('Canción guardada localmente (modo offline) 💾', 'info');
+                    };
+                    reader.readAsDataURL(file);
+                } catch (fallbackErr) {
+                    console.error('❌ Error en fallback:', fallbackErr);
+                    this.mostrarNotificacion(`Error: ${err.message || 'Error desconocido'}. Revisa la consola (F12).`, 'info');
+                }
+            }
         });
         
         // Cancelar
@@ -407,34 +591,64 @@ class ReproductorRomantico {
     }
     
     guardarCancion(cancion) {
-        // Cargar canciones existentes
-        const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
-        
-        // Agregar nueva canción
-        cancionesPersonalizadas.push(cancion);
-        
-        // Guardar en localStorage
-        localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesPersonalizadas));
+        // Intentar guardar en Supabase si está disponible, si no, usar localStorage como fallback
+        (async () => {
+            try {
+                if (window.supabaseClient && cancion.path && cancion.titulo) {
+                    await window.supabaseClient.from('canciones').insert([{ titulo: cancion.titulo, artista: cancion.artista, url: cancion.src, tipo: 'personalizada', path: cancion.path }]);
+                    await this.cargarPlaylist();
+                    return;
+                }
+            } catch (err) {
+                console.warn('No se pudo guardar en Supabase, guardando en localStorage:', err);
+            }
+
+            const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
+            cancionesPersonalizadas.push(cancion);
+            localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesPersonalizadas));
+        })();
     }
     
-    eliminarCancion(id) {
+    async eliminarCancion(id) {
         if (!confirm('¿Estás seguro de eliminar esta canción? 🗑️')) return;
-        
-        const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
-        const cancionesFiltradas = cancionesPersonalizadas.filter(c => c.id !== id);
-        
-        localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesFiltradas));
-        
-        // Recargar playlist
-        this.cargarPlaylist();
-        
-        // Si la canción eliminada es la actual, parar y cargar otra
-        if (this.playlist[this.currentTrack]?.id === id) {
-            this.pause();
-            this.cargarCancion(0);
+
+        try {
+            // Buscar la canción en la playlist actual para obtener path/url
+            const cancion = this.playlist.find(c => String(c.id) === String(id));
+
+            // Si hay Supabase, eliminar registro y archivo
+            if (window.supabaseClient) {
+                // Eliminar registro de la tabla
+                const { error: delError } = await window.supabaseClient.from('canciones').delete().eq('id', id);
+                if (delError) console.warn('Error eliminando registro en Supabase:', delError);
+
+                // Eliminar archivo del storage si tenemos el path
+                const path = cancion?.path || (cancion?.url ? (cancion.url.split('/archivos/')[1] || null) : null);
+                if (path) {
+                    const { error: rmError } = await window.supabaseClient.storage.from('archivos').remove([path]);
+                    if (rmError) console.warn('Error eliminando archivo en Storage:', rmError);
+                }
+            } else {
+                // Fallback: eliminar de localStorage
+                const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
+                const cancionesFiltradas = cancionesPersonalizadas.filter(c => String(c.id) !== String(id));
+                localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesFiltradas));
+            }
+
+            // Recargar playlist
+            await this.cargarPlaylist();
+
+            // Si la canción eliminada es la actual, parar y cargar otra
+            if (String(this.playlist[this.currentTrack]?.id) === String(id)) {
+                this.pause();
+                this.cargarCancion(0);
+            }
+
+            this.mostrarNotificacion('Canción eliminada correctamente 🗑️', 'info');
+        } catch (err) {
+            console.error('Error al eliminar canción:', err);
+            this.mostrarNotificacion('Error al eliminar la canción', 'info');
         }
-        
-        this.mostrarNotificacion('Canción eliminada correctamente 🗑️', 'info');
     }
     
     mostrarNotificacion(mensaje, tipo) {
@@ -477,7 +691,7 @@ class ReproductorRomantico {
                                 <button class="btn-eliminar-cancion" data-id="${cancion.id}" title="Eliminar">
                                     🗑️
                                 </button>
-                            ` : '<div class="cancion-badge">Original</div>'}
+                            ` : ''}
                             <button class="btn-reproducir-cancion" data-index="${index}" title="Reproducir">
                                 ▶️
                             </button>
@@ -495,7 +709,7 @@ class ReproductorRomantico {
         modal.querySelectorAll('.btn-eliminar-cancion').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                const id = parseInt(btn.dataset.id);
+                const id = btn.dataset.id; // id puede ser UUID string
                 this.eliminarCancion(id);
                 modal.remove();
             });

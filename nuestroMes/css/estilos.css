@@ -730,7 +730,7 @@ body {
     border: 2px solid var(--rojo-amor);
     border-radius: 50%;
     pointer-events: none;
-    z-index: 99999;
+    z-index: 999999 !important;
     transition: all 0.1s ease;
     mix-blend-mode: difference;
     background: rgba(255, 182, 193, 0.3);
@@ -745,7 +745,11 @@ body {
 
 /* Ocultar cursor predeterminado en desktop */
 @media (hover: hover) and (pointer: fine) {
-    body, a, button, .categoria-card, .mensaje-card {
+    body, a, button, input, textarea, select, 
+    .categoria-card, .mensaje-card, 
+    .btn-guardar, .btn-cancelar, .btn-eliminar, 
+    .btn-modal, .btn-cerrar, .close,
+    .form-control, .form-select {
         cursor: none !important;
     }
 }
@@ -834,7 +838,11 @@ body {
         display: none;
     }
     
-    body, a, button, .categoria-card, .mensaje-card {
+    body, a, button, input, textarea, select,
+    .categoria-card, .mensaje-card, 
+    .btn-guardar, .btn-cancelar, .btn-eliminar,
+    .btn-modal, .btn-cerrar, .close,
+    .form-control, .form-select {
         cursor: auto !important;
     }
 }
@@ -873,6 +881,17 @@ body {
     gap: 15px;
     min-width: 350px;
     animation: slideInRight 0.5s ease;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.reproductor-container.cargando {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.reproductor-container.listo {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 .reproductor-info {

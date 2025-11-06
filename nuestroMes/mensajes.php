@@ -47,7 +47,7 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
     <title><?php echo $tituloCategoria; ?> - Para Rocío</title>
     
     <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="img/corazon.svg">
+    <!-- <link rel="icon" type="image/svg+xml" href="img/corazon.svg"> -->
     
     <!-- Estilos -->
     <link rel="stylesheet" href="css/estilos.css">
@@ -107,7 +107,9 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
     <!-- Contenedor para partículas del cursor -->
     <div id="cursor-particles"></div>
     
-    <script src="js/efectos.js"></script>
+     <!--<script src="js/efectos.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabaseConfig.js"></script>
     <script src="js/cursorEffects.js"></script>
     <script src="js/musica.js"></script>
     <script src="js/galeria.js"></script>

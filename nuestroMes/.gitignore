@@ -26,5 +26,9 @@ error_log
 config.local.php
 .env
 
+# Configuración de Supabase (contiene API keys - NO SUBIR A REPO PÚBLICO)
+js/supabaseConfig.js
+config/supabase_secrets.php
+
 # Mantener carpetas vacías
 !.gitkeep

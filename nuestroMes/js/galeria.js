@@ -38,16 +38,41 @@ class GaleriaRomantica {
         ];
         
         this.fotos = [];
-        this.cargarFotos();
-        this.init();
+        // Cargar fotos desde Supabase (si está disponible) y luego inicializar
+        this.cargarFotos().then(() => this.init());
     }
     
-    cargarFotos() {
-        // Cargar fotos personalizadas desde localStorage
-        const fotosPersonalizadas = JSON.parse(localStorage.getItem('fotosPersonalizadas') || '[]');
-        
-        // Combinar fotos base con personalizadas
-        this.fotos = [...this.fotosBase, ...fotosPersonalizadas];
+    async cargarFotos() {
+        // Intentar cargar fotos personalizadas desde Supabase
+        try {
+            if (window.supabaseClient) {
+                const { data, error } = await window.supabaseClient
+                    .from('fotos')
+                    .select('*')
+                    .order('creado_en', { ascending: true });
+
+                if (error) throw error;
+
+                const fotosPersonalizadas = (data || []).map(f => ({
+                    src: f.url,
+                    titulo: f.titulo,
+                    fecha: new Date(f.creado_en).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' }),
+                    descripcion: f.descripcion || '',
+                    tipo: 'personalizada',
+                    id: f.id,
+                    path: f.path || null
+                }));
+
+                this.fotos = [...this.fotosBase, ...fotosPersonalizadas];
+                return;
+            }
+        } catch (err) {
+            console.warn('Error cargando fotos desde Supabase:', err);
+        }
+
+        // Fallback localStorage (si Supabase no está disponible)
+        const fotosPersonalizadasLocal = JSON.parse(localStorage.getItem('fotosPersonalizadas') || '[]');
+        this.fotos = [...this.fotosBase, ...fotosPersonalizadasLocal];
     }
     
     init() {
@@ -291,30 +316,77 @@ class GaleriaRomantica {
         });
         
         // Guardar foto
-        document.getElementById('formNuevaFoto').addEventListener('submit', (e) => {
+        document.getElementById('formNuevaFoto').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const file = inputFoto.files[0];
             if (!file) return;
             
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const nuevaFoto = {
-                    src: event.target.result, // Base64 de la imagen
-                    titulo: document.getElementById('tituloFoto').value,
-                    fecha: document.getElementById('fechaFoto').value,
-                    descripcion: document.getElementById('descripcionFoto').value,
-                    tipo: 'personalizada',
-                    id: Date.now()
-                };
-                
-                this.guardarFoto(nuevaFoto);
+            const titulo = document.getElementById('tituloFoto').value;
+            const fecha = document.getElementById('fechaFoto').value;
+            const descripcion = document.getElementById('descripcionFoto').value;
+
+            try {
+                if (!window.supabaseClient) throw new Error('Supabase no inicializado');
+
+                // Generar path seguro
+                const timestamp = Date.now();
+                const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+                const path = `fotos/${timestamp}_${safeName}`;
+
+                // Subir archivo
+                const { data: uploadData, error: uploadError } = await window.supabaseClient
+                    .storage
+                    .from('archivos')
+                    .upload(path, file, { upsert: true });
+
+                if (uploadError) throw uploadError;
+
+                // Obtener URL pública
+                const { data: publicUrlData } = window.supabaseClient
+                    .storage
+                    .from('archivos')
+                    .getPublicUrl(path);
+
+                const publicURL = publicUrlData?.publicUrl || '';
+
+                // Insertar metadatos en la tabla fotos
+                const { data: insertData, error: insertError } = await window.supabaseClient
+                    .from('fotos')
+                    .insert([{ titulo, descripcion, url: publicURL, tipo: 'foto', path }])
+                    .select();
+
+                if (insertError) throw insertError;
+
                 modal.remove();
-                
-                // Mostrar notificación
                 this.mostrarNotificacion('¡Foto agregada exitosamente! 📸💕', 'success');
-            };
-            reader.readAsDataURL(file);
+
+                // Recargar fotos desde Supabase
+                await this.cargarFotos();
+                
+                // Actualizar la galería si está abierta
+                this.actualizarGaleria();
+            } catch (err) {
+                console.error('Error al subir/guardar foto:', err);
+                
+                // Fallback: guardar en localStorage con Base64
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const nuevaFoto = {
+                        src: event.target.result, // Base64 de la imagen
+                        titulo: titulo,
+                        fecha: fecha,
+                        descripcion: descripcion,
+                        tipo: 'personalizada',
+                        id: Date.now()
+                    };
+                    
+                    this.guardarFotoLocalStorage(nuevaFoto);
+                    modal.remove();
+                    this.mostrarNotificacion('Foto guardada localmente (sin conexión) 📸', 'info');
+                };
+                reader.readAsDataURL(file);
+            }
         });
         
         // Cancelar
@@ -330,33 +402,78 @@ class GaleriaRomantica {
         setTimeout(() => modal.classList.add('active'), 10);
     }
     
-    guardarFoto(foto) {
-        // Cargar fotos existentes
+    guardarFotoLocalStorage(foto) {
+        // Guardar en localStorage como fallback
         const fotosPersonalizadas = JSON.parse(localStorage.getItem('fotosPersonalizadas') || '[]');
-        
-        // Agregar nueva foto
         fotosPersonalizadas.push(foto);
-        
-        // Guardar en localStorage
         localStorage.setItem('fotosPersonalizadas', JSON.stringify(fotosPersonalizadas));
-        
-        // Recargar fotos
         this.cargarFotos();
+        this.actualizarGaleria();
     }
     
-    eliminarFoto(id) {
+    async eliminarFoto(id) {
         if (!confirm('¿Estás seguro de eliminar esta foto? 🗑️')) return;
-        
-        const fotosPersonalizadas = JSON.parse(localStorage.getItem('fotosPersonalizadas') || '[]');
-        const fotosFiltradas = fotosPersonalizadas.filter(f => f.id !== id);
-        
-        localStorage.setItem('fotosPersonalizadas', JSON.stringify(fotosFiltradas));
-        this.cargarFotos();
-        
-        // Cerrar modal si está abierto
-        this.cerrar();
-        
-        this.mostrarNotificacion('Foto eliminada correctamente 🗑️', 'info');
+
+        try {
+            // Buscar la foto en la lista actual para obtener path/url
+            const foto = this.fotos.find(f => String(f.id) === String(id));
+
+            // Si hay Supabase, eliminar registro y archivo
+            if (window.supabaseClient) {
+                // Eliminar registro de la tabla
+                const { error: delError } = await window.supabaseClient.from('fotos').delete().eq('id', id);
+                if (delError) console.warn('Error eliminando registro en Supabase:', delError);
+
+                // Eliminar archivo del storage si tenemos el path
+                const path = foto?.path || (foto?.src ? (foto.src.split('/archivos/')[1] || null) : null);
+                if (path) {
+                    const { error: rmError } = await window.supabaseClient.storage.from('archivos').remove([path]);
+                    if (rmError) console.warn('Error eliminando archivo en Storage:', rmError);
+                }
+            } else {
+                // Fallback: eliminar de localStorage
+                const fotosPersonalizadas = JSON.parse(localStorage.getItem('fotosPersonalizadas') || '[]');
+                const fotosFiltradas = fotosPersonalizadas.filter(f => String(f.id) !== String(id));
+                localStorage.setItem('fotosPersonalizadas', JSON.stringify(fotosFiltradas));
+            }
+
+            // Recargar fotos
+            await this.cargarFotos();
+
+            // Cerrar modal si está abierto
+            this.cerrar();
+            
+            // Actualizar galería
+            this.actualizarGaleria();
+            
+            this.mostrarNotificacion('Foto eliminada correctamente 🗑️', 'info');
+        } catch (err) {
+            console.error('Error al eliminar foto:', err);
+            this.mostrarNotificacion('Error al eliminar la foto', 'info');
+        }
+    }
+    
+    actualizarGaleria() {
+        // Actualizar thumbnails si la galería está abierta
+        const thumbnailsContainer = document.querySelector('.galeria-thumbnails');
+        if (thumbnailsContainer) {
+            thumbnailsContainer.innerHTML = this.fotos.map((foto, index) => `
+                <div class="thumbnail ${index === this.currentIndex ? 'active' : ''}" data-index="${index}">
+                    <img src="${foto.src}" alt="${foto.titulo}" onerror="this.src='img/placeholder.jpg'">
+                </div>
+            `).join('');
+            
+            // Re-bind eventos de thumbnails
+            document.querySelectorAll('.thumbnail').forEach((thumb, index) => {
+                thumb.addEventListener('click', () => this.irAFoto(index));
+            });
+            
+            // Actualizar contador total
+            const contadorTotal = document.querySelector('.contador-total');
+            if (contadorTotal) {
+                contadorTotal.textContent = this.fotos.length;
+            }
+        }
     }
     
     mostrarNotificacion(mensaje, tipo) {
