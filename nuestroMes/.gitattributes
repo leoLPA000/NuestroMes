@@ -1,25 +1,27 @@
-# NuestroMes - Página Romántica para Rocío
+# Auto detect text files and perform LF normalization
+* text=auto
 
-## Archivos del proyecto
-*.php
-*.css
-*.js
-*.json
-*.svg
-*.md
+# PHP files
+*.php text eol=lf
 
-## Carpetas
-/css/
-/js/
-/data/
-/img/
+# Web files
+*.html text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+*.json text eol=lf
 
-## Configuración
-.htaccess
+# Markdown
+*.md text eol=lf
 
-## Documentación
-README.md
+# Images (binary files)
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
 
----
-
-**Proyecto creado con ❤️ por Leo para Rocío Milagros Fernández**
+# Audio files
+*.mp3 binary
+*.wav binary
+*.ogg binary
