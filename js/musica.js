@@ -108,15 +108,18 @@ class ReproductorRomantico {
                 }));
 
                 this.playlist = [...this.playlistBase, ...cancionesPersonalizadas];
+                console.log('✅ Playlist cargada desde Supabase:', this.playlist.length, 'canciones');
                 return;
+            } else {
+                console.error('❌ Supabase no está inicializado');
             }
         } catch (err) {
-            console.warn('Error cargando canciones desde Supabase:', err);
+            console.error('❌ Error cargando canciones desde Supabase:', err);
         }
 
-        // Fallback localStorage (si Supabase no está disponible)
-        const cancionesPersonalizadasLocal = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
-        this.playlist = [...this.playlistBase, ...cancionesPersonalizadasLocal];
+        // En rama servidor: solo canciones base, NO localStorage
+        this.playlist = [...this.playlistBase];
+        console.warn('⚠️ Usando solo canciones predeterminadas (5)');
     }
     
     init() {
@@ -681,32 +684,11 @@ class ReproductorRomantico {
                 btnGuardar.innerHTML = textoOriginal;
                 btnGuardar.disabled = false;
 
-                // Intentar fallback a localStorage con Base64
-                console.log('🔄 Intentando fallback a localStorage...');
-                try {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const nuevaCancion = {
-                            titulo: titulo,
-                            artista: artista,
-                            src: event.target.result, // Base64
-                            tipo: 'personalizada',
-                            id: Date.now()
-                        };
-                        
-                        const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
-                        cancionesPersonalizadas.push(nuevaCancion);
-                        localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesPersonalizadas));
-                        
-                        this.playlist.push(nuevaCancion);
-                        modal.remove();
-                        this.mostrarNotificacion('Canción guardada localmente (modo offline) 💾', 'info');
-                    };
-                    reader.readAsDataURL(file);
-                } catch (fallbackErr) {
-                    console.error('❌ Error en fallback:', fallbackErr);
-                    this.mostrarNotificacion(`Error: ${err.message || 'Error desconocido'}. Revisa la consola (F12).`, 'info');
-                }
+                // En rama servidor: NO usar localStorage, mostrar error
+                this.mostrarNotificacion('❌ Error al guardar canción: ' + err.message, 'error');
+                this.mostrarNotificacion('Verifica tu conexión a Supabase en la consola (F12)', 'info');
+                
+                // NO cerrar modal para que usuario pueda reintentar
             }
         });
         
@@ -724,21 +706,35 @@ class ReproductorRomantico {
     }
     
     guardarCancion(cancion) {
-        // Intentar guardar en Supabase si está disponible, si no, usar localStorage como fallback
+        // En rama servidor: SOLO Supabase, NO localStorage
         (async () => {
             try {
-                if (window.supabaseClient && cancion.path && cancion.titulo) {
-                    await window.supabaseClient.from('canciones').insert([{ titulo: cancion.titulo, artista: cancion.artista, url: cancion.src, tipo: 'personalizada', path: cancion.path }]);
-                    await this.cargarPlaylist();
+                if (!window.supabaseClient) {
+                    console.error('❌ Supabase no está inicializado');
+                    this.mostrarNotificacion('❌ Error: Supabase no inicializado. Verifica la configuración.', 'error');
                     return;
                 }
+                
+                if (!cancion.path || !cancion.titulo) {
+                    console.error('❌ Datos de canción incompletos:', cancion);
+                    this.mostrarNotificacion('❌ Error: Datos de canción incompletos', 'error');
+                    return;
+                }
+                
+                await window.supabaseClient.from('canciones').insert([{ 
+                    titulo: cancion.titulo, 
+                    artista: cancion.artista, 
+                    url: cancion.src, 
+                    tipo: 'personalizada', 
+                    path: cancion.path 
+                }]);
+                
+                console.log('✅ Canción guardada en Supabase:', cancion.titulo);
+                await this.cargarPlaylist();
             } catch (err) {
-                console.warn('No se pudo guardar en Supabase, guardando en localStorage:', err);
+                console.error('❌ Error al guardar canción en Supabase:', err);
+                this.mostrarNotificacion(`❌ Error al guardar canción: ${err.message}`, 'error');
             }
-
-            const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
-            cancionesPersonalizadas.push(cancion);
-            localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesPersonalizadas));
         })();
     }
     
@@ -746,26 +742,27 @@ class ReproductorRomantico {
         if (!confirm('¿Estás seguro de eliminar esta canción? 🗑️')) return;
 
         try {
+            if (!window.supabaseClient) {
+                console.error('❌ Supabase no está inicializado');
+                this.mostrarNotificacion('❌ Error: Supabase no inicializado', 'error');
+                return;
+            }
+            
             // Buscar la canción en la playlist actual para obtener path/url
             const cancion = this.playlist.find(c => String(c.id) === String(id));
 
-            // Si hay Supabase, eliminar registro y archivo
-            if (window.supabaseClient) {
-                // Eliminar registro de la tabla
-                const { error: delError } = await window.supabaseClient.from('canciones').delete().eq('id', id);
-                if (delError) console.warn('Error eliminando registro en Supabase:', delError);
+            // Eliminar registro de la tabla
+            const { error: delError } = await window.supabaseClient.from('canciones').delete().eq('id', id);
+            if (delError) {
+                console.error('❌ Error eliminando registro en Supabase:', delError);
+                throw delError;
+            }
 
-                // Eliminar archivo del storage si tenemos el path
-                const path = cancion?.path || (cancion?.url ? (cancion.url.split('/archivos/')[1] || null) : null);
-                if (path) {
-                    const { error: rmError } = await window.supabaseClient.storage.from('archivos').remove([path]);
-                    if (rmError) console.warn('Error eliminando archivo en Storage:', rmError);
-                }
-            } else {
-                // Fallback: eliminar de localStorage
-                const cancionesPersonalizadas = JSON.parse(localStorage.getItem('cancionesPersonalizadas') || '[]');
-                const cancionesFiltradas = cancionesPersonalizadas.filter(c => String(c.id) !== String(id));
-                localStorage.setItem('cancionesPersonalizadas', JSON.stringify(cancionesFiltradas));
+            // Eliminar archivo del storage si tenemos el path
+            const path = cancion?.path || (cancion?.url ? (cancion.url.split('/archivos/')[1] || null) : null);
+            if (path) {
+                const { error: rmError } = await window.supabaseClient.storage.from('archivos').remove([path]);
+                if (rmError) console.warn('⚠️ Advertencia eliminando archivo en Storage:', rmError);
             }
 
             // Recargar playlist

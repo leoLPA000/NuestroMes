@@ -38,15 +38,18 @@ class GaleriaRomantica {
                 }));
 
                 this.fotos = [...this.fotosBase, ...fotosPersonalizadas];
+                console.log('✅ Fotos cargadas desde Supabase:', this.fotos.length);
                 return;
+            } else {
+                console.error('❌ Supabase no está inicializado');
             }
         } catch (err) {
-            console.warn('Error cargando fotos desde Supabase:', err);
+            console.error('❌ Error cargando fotos desde Supabase:', err);
         }
 
-        // Fallback localStorage (si Supabase no está disponible)
-        const fotosPersonalizadasLocal = JSON.parse(localStorage.getItem('fotosPersonalizadas') || '[]');
-        this.fotos = [...this.fotosBase, ...fotosPersonalizadasLocal];
+        // En rama servidor: NO usar localStorage
+        this.fotos = [...this.fotosBase];
+        console.warn('⚠️ No se pudieron cargar fotos desde Supabase');
     }
     
     init() {
@@ -376,24 +379,11 @@ class GaleriaRomantica {
                 btnGuardar.innerHTML = textoOriginal;
                 btnGuardar.disabled = false;
                 
-                // Fallback: guardar en localStorage con Base64
-                console.log('🔄 Intentando fallback a localStorage...');
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const nuevaFoto = {
-                        src: event.target.result, // Base64 de la imagen
-                        titulo: titulo,
-                        fecha: fecha,
-                        descripcion: descripcion,
-                        tipo: 'personalizada',
-                        id: Date.now()
-                    };
-                    
-                    this.guardarFotoLocalStorage(nuevaFoto);
-                    modal.remove();
-                    this.mostrarNotificacion('Foto guardada localmente (sin conexión) 🏠', 'info');
-                };
-                reader.readAsDataURL(file);
+                // En rama servidor: NO usar localStorage, mostrar error
+                this.mostrarNotificacion('❌ Error al guardar foto: ' + err.message, 'error');
+                this.mostrarNotificacion('Verifica tu conexión a Supabase en la consola (F12)', 'info');
+                
+                // NO cerrar modal para que usuario pueda reintentar
             }
         });
         
@@ -410,39 +400,31 @@ class GaleriaRomantica {
         setTimeout(() => modal.classList.add('active'), 10);
     }
     
-    guardarFotoLocalStorage(foto) {
-        // Guardar en localStorage como fallback
-        const fotosPersonalizadas = JSON.parse(localStorage.getItem('fotosPersonalizadas') || '[]');
-        fotosPersonalizadas.push(foto);
-        localStorage.setItem('fotosPersonalizadas', JSON.stringify(fotosPersonalizadas));
-        this.cargarFotos();
-        this.actualizarGaleria();
-    }
-    
     async eliminarFoto(id) {
         if (!confirm('¿Estás seguro de eliminar esta foto? 🗑️')) return;
 
         try {
+            if (!window.supabaseClient) {
+                console.error('❌ Supabase no está inicializado');
+                this.mostrarNotificacion('❌ Error: Supabase no inicializado', 'info');
+                return;
+            }
+            
             // Buscar la foto en la lista actual para obtener path/url
             const foto = this.fotos.find(f => String(f.id) === String(id));
 
-            // Si hay Supabase, eliminar registro y archivo
-            if (window.supabaseClient) {
-                // Eliminar registro de la tabla
-                const { error: delError } = await window.supabaseClient.from('fotos').delete().eq('id', id);
-                if (delError) console.warn('Error eliminando registro en Supabase:', delError);
+            // Eliminar registro de la tabla
+            const { error: delError } = await window.supabaseClient.from('fotos').delete().eq('id', id);
+            if (delError) {
+                console.error('❌ Error eliminando registro en Supabase:', delError);
+                throw delError;
+            }
 
-                // Eliminar archivo del storage si tenemos el path
-                const path = foto?.path || (foto?.src ? (foto.src.split('/archivos/')[1] || null) : null);
-                if (path) {
-                    const { error: rmError } = await window.supabaseClient.storage.from('archivos').remove([path]);
-                    if (rmError) console.warn('Error eliminando archivo en Storage:', rmError);
-                }
-            } else {
-                // Fallback: eliminar de localStorage
-                const fotosPersonalizadas = JSON.parse(localStorage.getItem('fotosPersonalizadas') || '[]');
-                const fotosFiltradas = fotosPersonalizadas.filter(f => String(f.id) !== String(id));
-                localStorage.setItem('fotosPersonalizadas', JSON.stringify(fotosFiltradas));
+            // Eliminar archivo del storage si tenemos el path
+            const path = foto?.path || (foto?.src ? (foto.src.split('/archivos/')[1] || null) : null);
+            if (path) {
+                const { error: rmError } = await window.supabaseClient.storage.from('archivos').remove([path]);
+                if (rmError) console.warn('⚠️ Advertencia eliminando archivo en Storage:', rmError);
             }
 
             // Recargar fotos

@@ -1377,6 +1377,11 @@ body {
     color: white;
 }
 
+.notificacion-musica.error {
+    background: linear-gradient(135deg, #ff7675, #d63031);
+    color: white;
+}
+
 /* Modo oscuro para música */
 body.tema-oscuro .modal-contenido-musica,
 body.tema-oscuro .modal-contenido-playlist {
