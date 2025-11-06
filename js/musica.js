@@ -11,8 +11,16 @@ class ReproductorRomantico {
         this.volume = 0.3; // Volumen inicial 30%
         this.minimizado = false;
         
-        // Lista de canciones base (vacía - solo canciones personalizadas)
-        this.playlistBase = [];
+        // Lista de canciones base (con una canción de ejemplo)
+        this.playlistBase = [
+            {
+                titulo: 'Sin canciones aún',
+                artista: 'Agrega tu primera canción 💕',
+                src: '', // Sin fuente
+                tipo: 'placeholder',
+                id: 'placeholder'
+            }
+        ];
         
         this.playlist = [];
         
@@ -265,6 +273,15 @@ class ReproductorRomantico {
     }
     
     play() {
+        // Verificar si hay canciones reales (no placeholder)
+        const cancionActual = this.playlist[this.currentTrack];
+        if (!cancionActual || cancionActual.tipo === 'placeholder' || !cancionActual.src) {
+            this.mostrarNotificacion('📭 No hay canciones en la playlist. ¡Agrega tu primera canción! 🎵', 'info');
+            // Abrir automáticamente el formulario para agregar canción
+            setTimeout(() => this.abrirFormularioCancion(), 500);
+            return;
+        }
+        
         // Intentar reproducir inmediatamente con manejo de promesas
         const playPromise = this.audio.play();
         
@@ -320,6 +337,14 @@ class ReproductorRomantico {
     }
     
     siguiente() {
+        // Filtrar canciones válidas (sin placeholder)
+        const cancionesValidas = this.playlist.filter(c => c.tipo !== 'placeholder' && c.src);
+        
+        if (cancionesValidas.length === 0) {
+            this.mostrarNotificacion('📭 No hay canciones. ¡Agrega tu primera canción! 🎵', 'info');
+            return;
+        }
+        
         const nextIndex = (this.currentTrack + 1) % this.playlist.length;
         this.cargarCancion(nextIndex);
         if (this.playing) {
@@ -328,6 +353,14 @@ class ReproductorRomantico {
     }
     
     anterior() {
+        // Filtrar canciones válidas (sin placeholder)
+        const cancionesValidas = this.playlist.filter(c => c.tipo !== 'placeholder' && c.src);
+        
+        if (cancionesValidas.length === 0) {
+            this.mostrarNotificacion('📭 No hay canciones. ¡Agrega tu primera canción! 🎵', 'info');
+            return;
+        }
+        
         const prevIndex = this.currentTrack === 0 
             ? this.playlist.length - 1 
             : this.currentTrack - 1;
@@ -670,6 +703,59 @@ class ReproductorRomantico {
         // Pausar música
         if (this.playing) this.pause();
         
+        // Filtrar solo canciones válidas (no placeholder)
+        const cancionesReales = this.playlist.filter(c => c.tipo !== 'placeholder' && c.src);
+        
+        // Si no hay canciones reales, mostrar mensaje especial
+        if (cancionesReales.length === 0) {
+            const modal = document.createElement('div');
+            modal.className = 'modal-playlist';
+            modal.innerHTML = `
+                <div class="modal-overlay-playlist"></div>
+                <div class="modal-contenido-playlist">
+                    <h2>🎵 Mi Playlist Romántica</h2>
+                    <div style="text-align: center; padding: 40px 20px;">
+                        <div style="font-size: 5rem; margin-bottom: 20px;">📭</div>
+                        <h3 style="color: var(--morado-suave); margin-bottom: 15px;">Playlist vacía</h3>
+                        <p style="margin-bottom: 25px;">Aún no has agregado ninguna canción.</p>
+                        <button class="btn-agregar-primera" style="
+                            background: linear-gradient(135deg, var(--rojo-amor), #ff6b9d);
+                            color: white;
+                            border: none;
+                            padding: 15px 30px;
+                            border-radius: 50px;
+                            font-size: 1.1rem;
+                            cursor: pointer;
+                            transition: all 0.3s ease;
+                        ">
+                            ➕ Agregar primera canción
+                        </button>
+                    </div>
+                    <button class="btn-cerrar-playlist">✖️ Cerrar</button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Evento botón agregar
+            modal.querySelector('.btn-agregar-primera').addEventListener('click', () => {
+                modal.remove();
+                this.abrirFormularioCancion();
+            });
+            
+            // Cerrar
+            modal.querySelector('.btn-cerrar-playlist').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            modal.querySelector('.modal-overlay-playlist').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            setTimeout(() => modal.classList.add('active'), 10);
+            return;
+        }
+        
         // Crear modal de playlist
         const modal = document.createElement('div');
         modal.className = 'modal-playlist';
@@ -677,11 +763,13 @@ class ReproductorRomantico {
             <div class="modal-overlay-playlist"></div>
             <div class="modal-contenido-playlist">
                 <h2>🎵 Mi Playlist Romántica</h2>
-                <p class="subtitulo-modal">${this.playlist.length} canción${this.playlist.length !== 1 ? 'es' : ''} en total</p>
+                <p class="subtitulo-modal">${cancionesReales.length} canción${cancionesReales.length !== 1 ? 'es' : ''} en total</p>
                 
                 <div class="lista-canciones">
-                    ${this.playlist.map((cancion, index) => `
-                        <div class="cancion-item ${index === this.currentTrack ? 'actual' : ''}" data-index="${index}">
+                    ${cancionesReales.map((cancion, index) => {
+                        const realIndex = this.playlist.indexOf(cancion);
+                        return `
+                        <div class="cancion-item ${realIndex === this.currentTrack ? 'actual' : ''}" data-index="${realIndex}">
                             <div class="cancion-numero">${index + 1}</div>
                             <div class="cancion-info-item">
                                 <div class="cancion-titulo-item">${cancion.titulo}</div>
@@ -692,11 +780,11 @@ class ReproductorRomantico {
                                     🗑️
                                 </button>
                             ` : ''}
-                            <button class="btn-reproducir-cancion" data-index="${index}" title="Reproducir">
+                            <button class="btn-reproducir-cancion" data-index="${realIndex}" title="Reproducir">
                                 ▶️
                             </button>
                         </div>
-                    `).join('')}
+                    `}).join('')}
                 </div>
                 
                 <button class="btn-cerrar-playlist">✖️ Cerrar</button>

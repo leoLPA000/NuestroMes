@@ -125,10 +125,12 @@ body.tema-oscuro .cancion-artista {
 body.tema-oscuro .btn-control {
     background: linear-gradient(135deg, var(--acento-oscuro), var(--morado-oscuro));
     box-shadow: 0 4px 15px rgba(255, 107, 157, 0.3);
+    color: white;
 }
 
 body.tema-oscuro .btn-control:hover {
     box-shadow: 0 6px 25px rgba(255, 107, 157, 0.5);
+    transform: scale(1.1);
 }
 
 body.tema-oscuro .btn-minimizar-reproductor {
@@ -950,6 +952,13 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 1.2rem;
+    color: white;
+    box-shadow: 0 2px 8px rgba(230, 57, 70, 0.3);
+}
+
+.btn-control span {
+    display: inline-block;
+    line-height: 1;
 }
 
 .btn-control:hover {
@@ -965,6 +974,7 @@ body {
     width: 50px;
     height: 50px;
     font-size: 1.5rem;
+    background: linear-gradient(135deg, #e63946, #ff006e);
 }
 
 .volumen-container {
