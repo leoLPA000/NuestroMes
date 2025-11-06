@@ -2764,8 +2764,9 @@ body.tema-oscuro .notificacion-toast {
     .btn-galeria {
         bottom: 90px;
         left: 10px;
-        padding: 10px 20px;
-        font-size: 1rem;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        z-index: 9997;
     }
     
     .tema-toggle {
@@ -2815,10 +2816,13 @@ body.tema-oscuro .notificacion-toast {
     
     /* Formulario responsive */
     .btn-formulario {
-        top: 70px;
+        top: auto;
+        bottom: 90px;
         right: 10px;
-        padding: 10px 20px;
-        font-size: 1rem;
+        left: auto;
+        padding: 8px 16px;
+        font-size: 0.9rem;
+        z-index: 9997;
     }
     
     .texto-formulario {
