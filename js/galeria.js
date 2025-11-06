@@ -300,13 +300,26 @@ class GaleriaRomantica {
             const fecha = document.getElementById('fechaFoto').value;
             const descripcion = document.getElementById('descripcionFoto').value;
 
+            // Mostrar indicador de carga
+            const btnGuardar = modal.querySelector('.btn-guardar-foto');
+            const textoOriginal = btnGuardar.innerHTML;
+            btnGuardar.innerHTML = '⏳ Subiendo...';
+            btnGuardar.disabled = true;
+
             try {
-                if (!window.supabaseClient) throw new Error('Supabase no inicializado');
+                console.log('📤 Iniciando subida de foto...');
+                console.log('Supabase disponible:', !!window.supabaseClient);
+                
+                if (!window.supabaseClient) {
+                    throw new Error('Supabase no inicializado - cayendo a localStorage');
+                }
 
                 // Generar path seguro
                 const timestamp = Date.now();
                 const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
                 const path = `fotos/${timestamp}_${safeName}`;
+
+                console.log('📁 Path generado:', path);
 
                 // Subir archivo
                 const { data: uploadData, error: uploadError } = await window.supabaseClient
@@ -314,7 +327,12 @@ class GaleriaRomantica {
                     .from('archivos')
                     .upload(path, file, { upsert: true });
 
-                if (uploadError) throw uploadError;
+                if (uploadError) {
+                    console.error('❌ Error en upload:', uploadError);
+                    throw uploadError;
+                }
+
+                console.log('✅ Archivo subido:', uploadData);
 
                 // Obtener URL pública
                 const { data: publicUrlData } = window.supabaseClient
@@ -323,6 +341,7 @@ class GaleriaRomantica {
                     .getPublicUrl(path);
 
                 const publicURL = publicUrlData?.publicUrl || '';
+                console.log('🔗 URL pública:', publicURL);
 
                 // Insertar metadatos en la tabla fotos
                 const { data: insertData, error: insertError } = await window.supabaseClient
@@ -330,7 +349,12 @@ class GaleriaRomantica {
                     .insert([{ titulo, descripcion, url: publicURL, tipo: 'foto', path }])
                     .select();
 
-                if (insertError) throw insertError;
+                if (insertError) {
+                    console.error('❌ Error en insert:', insertError);
+                    throw insertError;
+                }
+
+                console.log('✅ Metadata insertada:', insertData);
 
                 modal.remove();
                 this.mostrarNotificacion('¡Foto agregada exitosamente! 📸💕', 'success');
@@ -341,9 +365,19 @@ class GaleriaRomantica {
                 // Actualizar la galería si está abierta
                 this.actualizarGaleria();
             } catch (err) {
-                console.error('Error al subir/guardar foto:', err);
+                console.error('❌ Error completo al subir/guardar foto:', err);
+                console.error('Detalles del error:', {
+                    message: err.message,
+                    name: err.name,
+                    stack: err.stack
+                });
+                
+                // Restaurar botón
+                btnGuardar.innerHTML = textoOriginal;
+                btnGuardar.disabled = false;
                 
                 // Fallback: guardar en localStorage con Base64
+                console.log('🔄 Intentando fallback a localStorage...');
                 const reader = new FileReader();
                 reader.onload = (event) => {
                     const nuevaFoto = {
@@ -357,7 +391,7 @@ class GaleriaRomantica {
                     
                     this.guardarFotoLocalStorage(nuevaFoto);
                     modal.remove();
-                    this.mostrarNotificacion('Foto guardada localmente (sin conexión) 📸', 'info');
+                    this.mostrarNotificacion('Foto guardada localmente (sin conexión) 🏠', 'info');
                 };
                 reader.readAsDataURL(file);
             }
