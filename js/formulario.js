@@ -294,9 +294,8 @@ class FormularioMensajes {
             return;
         }
         
-        // Crear objeto mensaje
+        // Crear objeto mensaje (sin id, Supabase lo genera automáticamente)
         const mensaje = {
-            id: Date.now(),
             categoria: categoria,
             emoji: emoji,
             texto: texto,
