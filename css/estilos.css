@@ -2814,15 +2814,15 @@ body.tema-oscuro .notificacion-toast {
         height: 60px;
     }
     
-    /* Formulario responsive */
+    /* Formulario responsive - botón "+" arriba de galería */
     .btn-formulario {
         top: auto;
-        bottom: 90px;
-        right: 10px;
-        left: auto;
+        bottom: 155px;
+        left: 10px;
+        right: auto;
         padding: 8px 16px;
         font-size: 0.9rem;
-        z-index: 9997;
+        z-index: 9998;
     }
     
     .texto-formulario {
