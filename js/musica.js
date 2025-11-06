@@ -145,6 +145,8 @@ class ReproductorRomantico {
     }
     
     crearControles() {
+        console.log('🎵 Creando controles del reproductor...');
+        
         const controles = document.createElement('div');
         controles.className = 'reproductor-container cargando';
         controles.innerHTML = `
@@ -192,6 +194,7 @@ class ReproductorRomantico {
         `;
         
         document.body.appendChild(controles);
+        console.log('✅ Controles agregados al DOM');
         
         // Marcar como listo cuando el audio esté preparado
         this.audio.addEventListener('canplaythrough', () => {
@@ -199,53 +202,122 @@ class ReproductorRomantico {
             controles.classList.add('listo');
         }, { once: true });
         
-        // Crear botón flotante minimizado
+        // Crear botón flotante minimizadoo
         const botonFlotante = document.createElement('button');
         botonFlotante.className = 'reproductor-minimizado';
         botonFlotante.title = 'Abrir reproductor';
         botonFlotante.innerHTML = '🎵';
         botonFlotante.style.display = 'none';
         document.body.appendChild(botonFlotante);
+        
+        console.log('✅ Reproductor creado completamente');
     }
     
     bindEventos() {
         // Play/Pause
         const btnPlay = document.querySelector('.btn-play');
-        btnPlay.addEventListener('click', () => this.togglePlay());
+        if (btnPlay) {
+            btnPlay.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.togglePlay();
+            });
+        } else {
+            console.error('❌ No se encontró .btn-play');
+        }
         
         // Anterior
         const btnAnterior = document.querySelector('.btn-anterior');
-        btnAnterior.addEventListener('click', () => this.anterior());
+        if (btnAnterior) {
+            btnAnterior.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.anterior();
+            });
+        } else {
+            console.error('❌ No se encontró .btn-anterior');
+        }
         
         // Siguiente
         const btnSiguiente = document.querySelector('.btn-siguiente');
-        btnSiguiente.addEventListener('click', () => this.siguiente());
+        if (btnSiguiente) {
+            btnSiguiente.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.siguiente();
+            });
+        } else {
+            console.error('❌ No se encontró .btn-siguiente');
+        }
         
         // Volumen slider
         const volumenSlider = document.querySelector('.volumen-slider');
-        volumenSlider.addEventListener('input', (e) => {
-            this.cambiarVolumen(e.target.value / 100);
-        });
+        if (volumenSlider) {
+            volumenSlider.addEventListener('input', (e) => {
+                this.cambiarVolumen(e.target.value / 100);
+            });
+        }
         
         // Botón volumen (mute/unmute)
         const btnVolumen = document.querySelector('.btn-volumen');
-        btnVolumen.addEventListener('click', () => this.toggleMute());
+        if (btnVolumen) {
+            btnVolumen.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleMute();
+            });
+        }
         
         // Minimizar reproductor
         const btnMinimizar = document.querySelector('.btn-minimizar-reproductor');
-        btnMinimizar.addEventListener('click', () => this.minimizar());
+        if (btnMinimizar) {
+            btnMinimizar.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔽 Minimizando reproductor...');
+                this.minimizar();
+            });
+        } else {
+            console.error('❌ No se encontró .btn-minimizar-reproductor');
+        }
         
         // Abrir desde minimizado
         const btnFlotante = document.querySelector('.reproductor-minimizado');
-        btnFlotante.addEventListener('click', () => this.maximizar());
+        if (btnFlotante) {
+            btnFlotante.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.maximizar();
+            });
+        }
         
         // Agregar música
         const btnAgregar = document.querySelector('.btn-agregar-musica');
-        btnAgregar.addEventListener('click', () => this.abrirFormularioCancion());
+        if (btnAgregar) {
+            btnAgregar.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('➕ Abriendo formulario de canción...');
+                this.abrirFormularioCancion();
+            });
+        } else {
+            console.error('❌ No se encontró .btn-agregar-musica');
+        }
         
         // Ver playlist
         const btnPlaylist = document.querySelector('.btn-ver-playlist');
-        btnPlaylist.addEventListener('click', () => this.mostrarPlaylist());
+        if (btnPlaylist) {
+            btnPlaylist.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('📋 Mostrando playlist...');
+                this.mostrarPlaylist();
+            });
+        } else {
+            console.error('❌ No se encontró .btn-ver-playlist');
+        }
+        
+        console.log('✅ Eventos del reproductor vinculados correctamente');
     }
     
     cargarCancion(index) {
