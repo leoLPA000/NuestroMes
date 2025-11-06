@@ -26,8 +26,9 @@ error_log
 config.local.php
 .env
 
-# Configuración de Supabase (contiene API keys - NO SUBIR A REPO PÚBLICO)
-js/supabaseConfig.js
+# Configuración de Supabase
+# NOTA: js/supabaseConfig.js contiene solo la key ANON (pública), es seguro subirla
+# config/supabase_secrets.php contiene keys privadas - NO SUBIR
 config/supabase_secrets.php
 
 # Mantener carpetas vacías
