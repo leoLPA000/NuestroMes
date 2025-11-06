@@ -19,11 +19,8 @@
 </head>
 <body>
     <div class="container">
-        <a href="index.php" class="btn-volver" aria-label="Volver al inicio">
-            <span>← Inicio</span>
-        </a>
-
         <header class="hero">
+            <a href="index.php" class="btn-volver" aria-label="Volver a la página principal">← Volver</a>
             <h1 class="titulo-categoria">✍️ Mis Mensajes</h1>
             <p class="mensaje-intro">
                 Tus propias palabras de amor guardadas aquí 💕

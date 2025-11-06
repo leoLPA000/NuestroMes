@@ -4,38 +4,12 @@
  */
 
 class GaleriaRomantica {
+    
     constructor() {
         this.currentIndex = 0;
-        this.fotosBase = [
-            {
-                src: 'galeria/foto1.jpg',
-                titulo: 'Nuestro Primer Momento',
-                fecha: '8 de octubre, 2025',
-                descripcion: 'El día que todo comenzó 💕',
-                tipo: 'base'
-            },
-            {
-                src: 'galeria/foto2.jpg',
-                titulo: 'Juntos',
-                fecha: 'Octubre 2025',
-                descripcion: 'Cada momento a tu lado es especial 🌹',
-                tipo: 'base'
-            },
-            {
-                src: 'galeria/foto3.jpg',
-                titulo: 'Felicidad',
-                fecha: 'Octubre 2025',
-                descripcion: 'Tu sonrisa ilumina mi mundo ✨',
-                tipo: 'base'
-            },
-            {
-                src: 'galeria/foto4.jpg',
-                titulo: 'Amor',
-                fecha: 'Noviembre 2025',
-                descripcion: 'Contigo todo es mejor 💝',
-                tipo: 'base'
-            }
-        ];
+        
+        // Galería base vacía - solo fotos personalizadas
+        this.fotosBase = [];
         
         this.fotos = [];
         // Cargar fotos desde Supabase (si está disponible) y luego inicializar
