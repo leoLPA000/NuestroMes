@@ -2762,7 +2762,7 @@ body.tema-oscuro .notificacion-toast {
     }
     
     .btn-galeria {
-        bottom: 90px;
+        bottom: 170px;
         left: 10px;
         padding: 8px 16px;
         font-size: 0.9rem;
@@ -2817,7 +2817,7 @@ body.tema-oscuro .notificacion-toast {
     /* Formulario responsive - botón "+" arriba de galería */
     .btn-formulario {
         top: auto;
-        bottom: 155px;
+        bottom: 230px;
         left: 10px;
         right: auto;
         padding: 8px 16px;
