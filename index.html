@@ -24,7 +24,7 @@
         <header class="hero">
             <h1 class="titulo-principal">Para ti, Rocío ❤️</h1>
             <p class="subtitulo">Nuestro primer mes juntos</p>
-            <div class="fecha-especial">8 de noviembre, 2025</div>
+            <div id="fechaEspecial" class="fecha-especial"></div>
         </header>
 
         <section class="intro">
@@ -90,7 +90,7 @@
             <div class="contador-dias">
                 <p class="texto-contador">Llevamos juntos:</p>
                 <p class="numero-dias" id="diasJuntos">1 mes</p>
-                <p class="texto-pequeno">Desde el 8 de octubre, 2025 💕</p>
+                <p class="texto-pequeno">Desde el <span id="desdeFecha">8 de octubre, 2025</span> 💕</p>
             </div>
             <p>Con todo mi amor para Rocío Milagros Fernández 💕</p>
             <p class="firma">— Tu Leo que te adora</p>
@@ -116,9 +116,13 @@
     <script>
         // Contador de días juntos
         function calcularDiasJuntos() {
-            const fechaInicio = new Date('2025-10-08'); // 8 de octubre 2025
+            // Construir la fecha de inicio con componentes para evitar desfases por zona horaria
+            const fechaInicio = new Date(2025, 9, 8); // meses: 0=enero, por eso 9 = octubre (8 de octubre 2025)
             const hoy = new Date();
-            const diferencia = hoy - fechaInicio;
+            // Normalizar horas a medianoche para evitar diferencias parciales del día
+            const inicioMidnight = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), fechaInicio.getDate());
+            const hoyMidnight = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+            const diferencia = hoyMidnight - inicioMidnight;
             const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
             
             let texto = '';
@@ -156,6 +160,24 @@
             }
         }
         
+        // Mostrar la fecha especial (hoy) en el header y la fecha de inicio en el footer
+        function formatearFechaES(date) {
+            return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+
+        // Rellenar fecha especial con la fecha actual
+        const elementoFechaEspecial = document.getElementById('fechaEspecial');
+        if (elementoFechaEspecial) {
+            elementoFechaEspecial.textContent = formatearFechaES(new Date());
+        }
+
+        // Rellenar fecha "desde" usando la fecha de inicio definida (8 oct 2025)
+        const elementoDesde = document.getElementById('desdeFecha');
+        if (elementoDesde) {
+            const fechaInicio = new Date(2025, 9, 8);
+            elementoDesde.textContent = formatearFechaES(fechaInicio);
+        }
+
         // Calcular al cargar
         calcularDiasJuntos();
         
