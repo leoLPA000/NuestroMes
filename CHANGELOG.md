@@ -184,7 +184,7 @@
 
 ### ✅ Mejoras de accesibilidad
 - ✓ Agregados meta tags (description, theme-color)
-- ✓ Agregado favicon.svg con corazón
+
 - ✓ Agregados atributos `aria-label` en todos los elementos interactivos
 - ✓ Agregados roles ARIA (`navigation`, `listitem`, `alert`)
 - ✓ Soporte para `prefers-reduced-motion` (usuarios con sensibilidad a animaciones)
@@ -193,7 +193,7 @@
 ### 🎨 Assets gráficos
 - ✓ Creado `rosa.svg` (5KB) - Rosa romántica vectorial
 - ✓ Creado `corazon.svg` (2KB) - Corazón con gradiente y brillo
-- ✓ Creado `favicon.svg` (1KB) - Icono para la pestaña del navegador
+
 - ✓ Formato SVG = tamaño mínimo + escalable
 
 ### 🧪 Sistema de pruebas

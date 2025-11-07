@@ -47,7 +47,7 @@ $tituloCategoria = isset($nombresCategorias[$categoria]) ? $nombresCategorias[$c
     <title><?php echo $tituloCategoria; ?> - Para Rocío</title>
     
     <!-- Favicon -->
-    <!-- <link rel="icon" type="image/svg+xml" href="img/corazon.svg"> -->
+    <link rel="icon" type="image/svg+xml" href="img/corazon.svg">
     
     <!-- Estilos -->
     <link rel="stylesheet" href="css/estilos.css">

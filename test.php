@@ -96,7 +96,7 @@
         'js/cursorEffects.js' => 'JavaScript Cursor',
         'img/rosa.svg' => 'Rosa SVG',
         'img/corazon.svg' => 'Corazón SVG',
-        'img/favicon.svg' => 'Favicon SVG'
+       
     ];
     
     foreach ($archivos as $archivo => $nombre) {
