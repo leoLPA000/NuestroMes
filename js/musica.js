@@ -11,43 +11,16 @@ class ReproductorRomantico {
         this.volume = 0.3; // Volumen inicial 30%
         this.minimizado = false;
         
-        // Lista de canciones base internas (funcionan sin necesidad de subir archivos)
-        // Estas son canciones de ejemplo de SoundHelix (royalty-free)
+        // Lista mínima de canciones base internas (1 archivo local) — evita problemas de CORS
+        // Coloca un MP3 en el path: audio/romantica-interna.mp3 (o cambia el src al nombre que prefieras)
         this.playlistBase = [
             {
-                titulo: 'Melodía Romántica 1',
-                artista: 'Música Instrumental',
-                src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+                titulo: 'Melodía Romántica (local)',
+                artista: 'Instrumental',
+                // Archivo local dentro del proyecto para evitar CORS cuando pruebas en local
+                src: 'audio/Happy-Together.mp3',
                 tipo: 'predeterminada',
-                id: 'base-1'
-            },
-            {
-                titulo: 'Melodía Romántica 2',
-                artista: 'Música Instrumental',
-                src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3',
-                tipo: 'predeterminada',
-                id: 'base-2'
-            },
-            {
-                titulo: 'Melodía Romántica 3',
-                artista: 'Música Instrumental',
-                src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3',
-                tipo: 'predeterminada',
-                id: 'base-3'
-            },
-            {
-                titulo: 'Melodía Romántica 4',
-                artista: 'Música Instrumental',
-                src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3',
-                tipo: 'predeterminada',
-                id: 'base-4'
-            },
-            {
-                titulo: 'Melodía Romántica 5',
-                artista: 'Música Instrumental',
-                src: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3',
-                tipo: 'predeterminada',
-                id: 'base-5'
+                id: 'base-local-1'
             }
         ];
         
@@ -227,6 +200,10 @@ class ReproductorRomantico {
         
         document.body.appendChild(controles);
         console.log('✅ Controles agregados al DOM');
+    // Habilitar interacción inmediatamente para evitar que overlays o problemas de CORS de audio bloqueen los clicks
+    // (la clase 'cargando' se usa solo para apariencia; permitimos interacciones de todas formas)
+    controles.classList.remove('cargando');
+    controles.classList.add('listo');
         
         // Marcar como listo cuando el audio esté preparado
         this.audio.addEventListener('canplaythrough', () => {
