@@ -164,7 +164,8 @@ class ReproductorRomantico {
                             this.guardarEstado();
                             this.actualizarUI(true);
                         }).catch(() => {
-                            // No pudo auto-reproducir (política del navegador). Esperar interacción del usuario.
+                            // No pudo auto-reproducir (política del navegador). Mostrar botón de reanudar para un solo clic.
+                            this.showResumeButton();
                         });
                     }
                 } catch (err) {
@@ -179,9 +180,11 @@ class ReproductorRomantico {
 
             window.addEventListener('visibilitychange', handleVisibility);
 
-            // También reintentar al primer clic del usuario en la nueva página (una sola vez)
-            document.addEventListener('click', tryPlay, { once: true });
+            // No añadimos listeners documentales redundantes; mostramos botón si falla.
         }
+
+        // Mostrar botón de reanudar si existe y no hay reproducción
+        // (métodos auxiliares añadidos más abajo)
     }
     
     crearControles() {
@@ -363,6 +366,34 @@ class ReproductorRomantico {
         
         console.log('✅ Eventos del reproductor vinculados correctamente');
     }
+
+    // Mostrar un botón flotante para reanudar la reproducción cuando el navegador bloquea el autoplay
+    showResumeButton() {
+        if (document.querySelector('.btn-reanudar-musica')) return; // ya existe
+
+        const btn = document.createElement('button');
+        btn.className = 'btn-reanudar-musica';
+        btn.title = 'Reanudar música';
+        btn.innerHTML = '▶️ Reanudar música';
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.hideResumeButton();
+            // Intentar reproducir con interacción explícita
+            this.play();
+        });
+
+        document.body.appendChild(btn);
+        // pequeña animación para llamar la atención
+        setTimeout(() => btn.classList.add('visible'), 20);
+    }
+
+    hideResumeButton() {
+        const btn = document.querySelector('.btn-reanudar-musica');
+        if (!btn) return;
+        btn.classList.remove('visible');
+        setTimeout(() => btn.remove(), 250);
+    }
     
     cargarCancion(index) {
         if (index >= 0 && index < this.playlist.length) {
@@ -413,6 +444,8 @@ class ReproductorRomantico {
                     this.playing = true;
                     this.guardarEstado();
                     this.actualizarUI(true);
+                    // Si teníamos un botón de reanudar, ocultarlo
+                    this.hideResumeButton();
                 })
                 .catch(err => {
                     // Si falla por política de autoplay, reintentamos después de interacción
@@ -420,15 +453,21 @@ class ReproductorRomantico {
                     this.playing = false;
                     
                     // Reintentar cuando el usuario haga clic en cualquier parte
-                    const reintentar = () => {
-                        this.audio.play().then(() => {
-                            this.playing = true;
-                            this.guardarEstado();
-                            this.actualizarUI(true);
-                            document.removeEventListener('click', reintentar);
-                        }).catch(() => {});
-                    };
-                    document.addEventListener('click', reintentar, { once: true });
+                    // Si ya mostramos el botón de reanudar, no añadimos otro listener global
+                    if (!document.querySelector('.btn-reanudar-musica')) {
+                        const reintentar = () => {
+                            this.audio.play().then(() => {
+                                this.playing = true;
+                                this.guardarEstado();
+                                this.actualizarUI(true);
+                                document.removeEventListener('click', reintentar);
+                                this.hideResumeButton();
+                            }).catch(() => {});
+                        };
+                        document.addEventListener('click', reintentar, { once: true });
+                    } else {
+                        // Si el botón existe, dejar que el usuario lo use
+                    }
                 });
         }
     }
