@@ -1,5 +1,6 @@
 -- SQL para insertar canciones de ejemplo en Supabase
 -- Ejecuta esto en el SQL Editor de Supabase
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- Primero, asegúrate de que la tabla 'canciones' existe
 CREATE TABLE IF NOT EXISTS canciones (
@@ -16,11 +17,7 @@ CREATE TABLE IF NOT EXISTS canciones (
 -- Estas son URLs de ejemplo, necesitas subirlas a tu Storage primero o usar URLs públicas
 
 INSERT INTO canciones (titulo, artista, url, tipo) VALUES
-('Perfect', 'Ed Sheeran', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'predeterminada'),
-('A Thousand Years', 'Christina Perri', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3', 'predeterminada'),
-('All of Me', 'John Legend', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3', 'predeterminada'),
-('Thinking Out Loud', 'Ed Sheeran', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3', 'predeterminada'),
-('Make You Feel My Love', 'Adele', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3', 'predeterminada');
+('Perfect', 'Ed Sheeran', 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3', 'predeterminada');
 
 -- Ver las canciones insertadas
 SELECT * FROM canciones ORDER BY creado_en DESC;

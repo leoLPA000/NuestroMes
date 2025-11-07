@@ -147,6 +147,41 @@ class ReproductorRomantico {
         
         // Bind eventos
         this.bindEventos();
+
+        // Guardar estado antes de salir de la página (por si hay navegación entre vistas)
+        window.addEventListener('beforeunload', () => {
+            try { this.guardarEstado(); } catch (e) { /* ignore */ }
+        });
+
+        // Si en la sesión previa estaba reproduciéndose, intentar reanudar cuando la página sea visible
+        if (estadoPrevio.playing) {
+            const tryPlay = () => {
+                try {
+                    const p = this.audio.play();
+                    if (p && typeof p.then === 'function') {
+                        p.then(() => {
+                            this.playing = true;
+                            this.guardarEstado();
+                            this.actualizarUI(true);
+                        }).catch(() => {
+                            // No pudo auto-reproducir (política del navegador). Esperar interacción del usuario.
+                        });
+                    }
+                } catch (err) {
+                    // ignorar
+                }
+            };
+
+            // Intentar cuando la pestaña vuelva a ser visible (útil al navegar entre vistas)
+            const handleVisibility = () => {
+                if (document.visibilityState === 'visible' && !this.playing) tryPlay();
+            };
+
+            window.addEventListener('visibilitychange', handleVisibility);
+
+            // También reintentar al primer clic del usuario en la nueva página (una sola vez)
+            document.addEventListener('click', tryPlay, { once: true });
+        }
     }
     
     crearControles() {
