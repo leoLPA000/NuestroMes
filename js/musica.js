@@ -25,6 +25,8 @@ class ReproductorRomantico {
         ];
         
         this.playlist = [];
+    this.popupWindow = null;
+    this.delegatedToPopup = false;
         
         // Restaurar estado previo si existe
         this.restaurarEstado();
@@ -148,6 +150,9 @@ class ReproductorRomantico {
         // Bind eventos
         this.bindEventos();
 
+    // Listen messages from popup
+    window.addEventListener('message', (ev) => this.handlePopupMessage(ev));
+
         // Guardar estado antes de salir de la página (por si hay navegación entre vistas)
         window.addEventListener('beforeunload', () => {
             try { this.guardarEstado(); } catch (e) { /* ignore */ }
@@ -185,6 +190,71 @@ class ReproductorRomantico {
 
         // Mostrar botón de reanudar si existe y no hay reproducción
         // (métodos auxiliares añadidos más abajo)
+    }
+
+    // Open or focus popup player and send initial data
+    openPopup() {
+        try {
+            const features = 'width=520,height=160,resizable=yes';
+            if (!this.popupWindow || this.popupWindow.closed) {
+                this.popupWindow = window.open('player.html', 'reproductor', features);
+            } else {
+                this.popupWindow.focus();
+            }
+
+            // Send init once popup is available (retry a few times)
+            const initMsg = () => {
+                if (!this.popupWindow || this.popupWindow.closed) return;
+                const payload = {
+                    type: 'init-player',
+                    playlist: this.playlist,
+                    currentTrack: this.currentTrack,
+                    playing: this.playing,
+                    volume: this.volume
+                };
+                this.popupWindow.postMessage(payload, '*');
+            };
+
+            // Try a few times in case popup takes time to load
+            initMsg();
+            setTimeout(initMsg, 300);
+            setTimeout(initMsg, 1000);
+
+            // Pause local audio to avoid double playback
+            try { if (this.audio && !this.audio.paused) this.audio.pause(); } catch(e){}
+            this.delegatedToPopup = true;
+        } catch (err) {
+            console.error('No se pudo abrir popup reproductor:', err);
+        }
+    }
+
+    sendToPopup(cmd, data={}) {
+        if (this.popupWindow && !this.popupWindow.closed) {
+            this.popupWindow.postMessage(Object.assign({ type: 'control', cmd }, data), '*');
+        }
+    }
+
+    handlePopupMessage(ev) {
+        const data = ev.data || {};
+        if (data && data.type === 'popup-state') {
+            // Sync UI/state
+            try {
+                this.playing = !!data.playing;
+                if (typeof data.currentTrack === 'number') this.currentTrack = data.currentTrack;
+                if (typeof data.volume === 'number') this.volume = data.volume;
+                this.actualizarUI(this.playing);
+                this.guardarEstado();
+            } catch (e) {}
+        }
+
+        if (data && data.type === 'popup-closed') {
+            // Popup closed: try to restore local playback status
+            this.delegatedToPopup = false;
+            // Try to resume locally if it was playing
+            if (this.playing) {
+                try { this.audio.play().catch(()=>{}); } catch(e){}
+            }
+        }
     }
     
     crearControles() {
@@ -434,9 +504,15 @@ class ReproductorRomantico {
             return;
         }
         
-        // Intentar reproducir inmediatamente con manejo de promesas
+        // Si hay popup delegando, enviar comando
+        if (this.delegatedToPopup && this.popupWindow && !this.popupWindow.closed) {
+            this.sendToPopup('play');
+            return;
+        }
+
+        // Intentar reproducir inmediatamente con manejo de promesas (local)
         const playPromise = this.audio.play();
-        
+
         if (playPromise !== undefined) {
             playPromise
                 .then(() => {
@@ -448,25 +524,13 @@ class ReproductorRomantico {
                     this.hideResumeButton();
                 })
                 .catch(err => {
-                    // Si falla por política de autoplay, reintentamos después de interacción
-                    console.log('Esperando interacción del usuario para reproducir:', err);
-                    this.playing = false;
-                    
-                    // Reintentar cuando el usuario haga clic en cualquier parte
-                    // Si ya mostramos el botón de reanudar, no añadimos otro listener global
-                    if (!document.querySelector('.btn-reanudar-musica')) {
-                        const reintentar = () => {
-                            this.audio.play().then(() => {
-                                this.playing = true;
-                                this.guardarEstado();
-                                this.actualizarUI(true);
-                                document.removeEventListener('click', reintentar);
-                                this.hideResumeButton();
-                            }).catch(() => {});
-                        };
-                        document.addEventListener('click', reintentar, { once: true });
-                    } else {
-                        // Si el botón existe, dejar que el usuario lo use
+                    // Si falla por política de autoplay, intentar abrir popup para delegar (mejor UX)
+                    console.log('Autoplay bloqueado, intentando popup como fallback:', err);
+                    try {
+                        this.openPopup();
+                    } catch (e) {
+                        // mostrar botón
+                        this.showResumeButton();
                     }
                 });
         }
@@ -490,6 +554,11 @@ class ReproductorRomantico {
     }
     
     pause() {
+        if (this.delegatedToPopup && this.popupWindow && !this.popupWindow.closed) {
+            this.sendToPopup('pause');
+            return;
+        }
+
         this.audio.pause();
         this.playing = false;
         this.guardarEstado();
@@ -501,7 +570,12 @@ class ReproductorRomantico {
             this.mostrarNotificacion('📭 No hay canciones en la playlist', 'info');
             return;
         }
-        
+
+        if (this.delegatedToPopup && this.popupWindow && !this.popupWindow.closed) {
+            this.sendToPopup('next');
+            return;
+        }
+
         const nextIndex = (this.currentTrack + 1) % this.playlist.length;
         this.cargarCancion(nextIndex);
         if (this.playing) {
@@ -514,7 +588,12 @@ class ReproductorRomantico {
             this.mostrarNotificacion('📭 No hay canciones en la playlist', 'info');
             return;
         }
-        
+
+        if (this.delegatedToPopup && this.popupWindow && !this.popupWindow.closed) {
+            this.sendToPopup('prev');
+            return;
+        }
+
         const prevIndex = this.currentTrack === 0 
             ? this.playlist.length - 1 
             : this.currentTrack - 1;
@@ -526,6 +605,11 @@ class ReproductorRomantico {
     
     cambiarVolumen(nivel) {
         this.volume = nivel;
+        if (this.delegatedToPopup && this.popupWindow && !this.popupWindow.closed) {
+            this.sendToPopup('setVolume', { volume: nivel });
+            return;
+        }
+
         this.audio.volume = nivel;
         
         // Actualizar iconos de volumen
