@@ -439,6 +439,7 @@ class ReproductorRomantico {
     }
 
     // Mostrar un botón flotante para reanudar la reproducción cuando el navegador bloquea el autoplay
+    /*
     showResumeButton() {
         if (document.querySelector('.btn-reanudar-musica')) return; // ya existe
 
@@ -469,7 +470,7 @@ class ReproductorRomantico {
             btn.style.animation = 'pulse 2s infinite';
         }
     }
-
+*/
     hideResumeButton() {
         const btn = document.querySelector('.btn-reanudar-musica');
         if (!btn) return;
