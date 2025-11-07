@@ -153,6 +153,32 @@ class ReproductorRomantico {
             try { this.guardarEstado(); } catch (e) { /* ignore */ }
         });
 
+        // En producción: guardar estado también cuando la página se oculta (más confiable)
+        window.addEventListener('pagehide', () => {
+            try { this.guardarEstado(); } catch (e) { /* ignore */ }
+        });
+
+        // Reintentar reproducción cuando la página vuelve a estar visible (útil en HTTPS)
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                const estado = JSON.parse(sessionStorage.getItem('reproductorEstado') || '{}');
+                if (estado.playing && !this.playing && this.audio && !this.audio.ended) {
+                    // Intentar reanudar
+                    const p = this.audio.play();
+                    if (p && typeof p.then === 'function') {
+                        p.then(() => {
+                            this.playing = true;
+                            this.actualizarUI(true);
+                            this.hideResumeButton();
+                        }).catch(() => {
+                            // Si falla, mostrar botón
+                            this.showResumeButton();
+                        });
+                    }
+                }
+            }
+        });
+
         // Si en la sesión previa estaba reproduciéndose, intentar reanudar cuando la página sea visible
         if (estadoPrevio.playing) {
             // Intentar reproducir automáticamente (navegadores modernos pueden bloquear)
@@ -178,6 +204,55 @@ class ReproductorRomantico {
             window.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible' && !this.playing && estadoPrevio.playing) {
                     tryAutoPlay();
+                }
+            });
+        }
+
+        // OPTIMIZACIÓN PARA PRODUCCIÓN: Interceptar navegación en enlaces internos
+        this.interceptarNavegacion();
+    }
+
+    // Interceptar clicks en enlaces para mantener audio activo
+    interceptarNavegacion() {
+        // Detectar si estamos en producción (HTTPS o dominio remoto)
+        const esProduccion = window.location.protocol === 'https:' || 
+                            window.location.hostname !== 'localhost' && 
+                            window.location.hostname !== '127.0.0.1';
+
+        if (!esProduccion) return; // En local no es necesario
+
+        // Interceptar todos los enlaces internos
+        document.addEventListener('click', (e) => {
+            const link = e.target.closest('a');
+            if (!link) return;
+
+            const href = link.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('http://') || href.startsWith('https://')) return;
+
+            // Es un enlace interno relativo
+            if (this.playing) {
+                e.preventDefault();
+                
+                // Guardar estado antes de navegar
+                this.guardarEstado();
+                
+                // Pequeño delay para que el audio tenga chance de seguir
+                setTimeout(() => {
+                    window.location.href = href;
+                }, 50);
+            }
+        }, true);
+
+        // También interceptar el botón "Volver" si existe
+        const btnVolver = document.querySelector('.btn-volver');
+        if (btnVolver) {
+            btnVolver.addEventListener('click', (e) => {
+                if (this.playing) {
+                    e.preventDefault();
+                    this.guardarEstado();
+                    setTimeout(() => {
+                        window.location.href = btnVolver.getAttribute('href') || 'index.html';
+                    }, 50);
                 }
             });
         }
@@ -370,7 +445,7 @@ class ReproductorRomantico {
         const btn = document.createElement('button');
         btn.className = 'btn-reanudar-musica';
         btn.title = 'Reanudar música';
-        btn.innerHTML = '▶️ Reanudar música';
+        btn.innerHTML = '🎵 Reanudar música';
         btn.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -382,6 +457,17 @@ class ReproductorRomantico {
         document.body.appendChild(btn);
         // pequeña animación para llamar la atención
         setTimeout(() => btn.classList.add('visible'), 20);
+
+        // En producción, el botón es más prominente y no desaparece automáticamente
+        const esProduccion = window.location.protocol === 'https:' || 
+                            (window.location.hostname !== 'localhost' && 
+                             window.location.hostname !== '127.0.0.1');
+        
+        if (esProduccion) {
+            btn.style.fontSize = '1.1rem';
+            btn.style.padding = '15px 25px';
+            btn.style.animation = 'pulse 2s infinite';
+        }
     }
 
     hideResumeButton() {
