@@ -116,43 +116,57 @@
     <script>
         // Contador de días juntos
         function calcularDiasJuntos() {
-            // Construir la fecha de inicio con componentes para evitar desfases por zona horaria
-            const fechaInicio = new Date(2025, 9, 8); // meses: 0=enero, por eso 9 = octubre (8 de octubre 2025)
+            // Fecha de inicio (componentes para evitar desfases por zona horaria)
+            const inicio = { year: 2025, month: 9, day: 8 }; // month: 0=enero -> 9 = octubre
+            const fechaInicio = new Date(inicio.year, inicio.month, inicio.day);
             const hoy = new Date();
-            // Normalizar horas a medianoche para evitar diferencias parciales del día
-            const inicioMidnight = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), fechaInicio.getDate());
+
+            // Si hoy es anterior a la fecha de inicio
             const hoyMidnight = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
-            const diferencia = hoyMidnight - inicioMidnight;
-            const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-            
-            let texto = '';
-            if (dias === 0) {
-                texto = '¡Hoy comenzamos! 🎉';
-            } else if (dias === 1) {
-                texto = '1 día hermoso';
-            } else if (dias < 30) {
-                texto = dias + ' días increíbles';
-            } else if (dias < 60) {
-                texto = '1 mes maravilloso';
-            } else if (dias < 365) {
-                const meses = Math.floor(dias / 30);
-                const diasRestantes = dias % 30;
-                texto = meses + (meses === 1 ? ' mes' : ' meses');
-                if (diasRestantes > 0) {
-                    texto += ' y ' + diasRestantes + (diasRestantes === 1 ? ' día' : ' días');
+            const inicioMidnight = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), fechaInicio.getDate());
+            if (hoyMidnight < inicioMidnight) {
+                const ms = inicioMidnight - hoyMidnight;
+                const diasFaltan = Math.ceil(ms / (1000 * 60 * 60 * 24));
+                const elemento = document.getElementById('diasJuntos');
+                if (elemento) {
+                    elemento.textContent = diasFaltan === 1 ? `Falta 1 día` : `Faltan ${diasFaltan} días`;
+                    elemento.style.animation = '';
                 }
-            } else {
-                const anos = Math.floor(dias / 365);
-                const diasRestantes = dias % 365;
-                texto = anos + (anos === 1 ? ' año' : ' años');
-                if (diasRestantes > 0) {
-                    const meses = Math.floor(diasRestantes / 30);
-                    if (meses > 0) {
-                        texto += ' y ' + meses + (meses === 1 ? ' mes' : ' meses');
-                    }
-                }
+                return;
             }
-            
+
+            // Cálculo por meses/años/días de calendario (más preciso que dividir por 30)
+            let yearDiff = hoy.getFullYear() - fechaInicio.getFullYear();
+            let monthDiff = hoy.getMonth() - fechaInicio.getMonth();
+            let dayDiff = hoy.getDate() - fechaInicio.getDate();
+
+            if (dayDiff < 0) {
+                // tomar días del mes anterior al mes actual
+                const daysInPrevMonth = new Date(hoy.getFullYear(), hoy.getMonth(), 0).getDate();
+                dayDiff += daysInPrevMonth;
+                monthDiff -= 1;
+            }
+
+            if (monthDiff < 0) {
+                monthDiff += 12;
+                yearDiff -= 1;
+            }
+
+            let texto = '';
+            if (yearDiff > 0) {
+                texto = yearDiff + (yearDiff === 1 ? ' año' : ' años');
+                if (monthDiff > 0) texto += ' y ' + monthDiff + (monthDiff === 1 ? ' mes' : ' meses');
+            } else if (monthDiff > 0) {
+                texto = monthDiff + (monthDiff === 1 ? ' mes' : ' meses');
+                if (dayDiff > 0) texto += ' y ' + dayDiff + (dayDiff === 1 ? ' día' : ' días');
+            } else if (dayDiff === 0) {
+                texto = '¡Hoy comenzamos! 🎉';
+            } else if (dayDiff === 1) {
+                texto = '1 día hermoso';
+            } else {
+                texto = dayDiff + ' días increíbles';
+            }
+
             const elemento = document.getElementById('diasJuntos');
             if (elemento) {
                 elemento.textContent = texto;
