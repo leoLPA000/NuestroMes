@@ -6,7 +6,7 @@
     <meta name="description" content="Página web romántica para Rocío, celebrando nuestro primer mes juntos con mensajes de amor personalizados.">
     <meta name="author" content="Leo">
     <meta name="theme-color" content="#e63946">
-    <title>NuestroMes ❤️ Para Rocío</title>
+    <title>❤️Para Rocío ❤️</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="img/corazon.svg">
