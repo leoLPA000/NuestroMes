@@ -103,7 +103,7 @@ class FormularioMensajes {
                             name="texto" 
                             required 
                             class="form-textarea"
-                            placeholder="Escribe aquí tu mensaje romántico..."
+                            placeholder="Escribe aquí tu mensaje ..."
                             maxlength="500"
                             rows="5"
                         ></textarea>
