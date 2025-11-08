@@ -240,7 +240,7 @@ class GaleriaRomantica {
             <div class="modal-overlay"></div>
             <div class="modal-contenido-foto">
                 <h2>📸 Agregar Nueva Foto</h2>
-                <p class="subtitulo-modal">Sube una foto especial de nosotros</p>
+                <p class="subtitulo-modal">Sube una foto </p>
                 
                 <form id="formNuevaFoto" class="form-nueva-foto">
                     <div class="form-grupo">
