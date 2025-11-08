@@ -666,7 +666,7 @@ class ReproductorRomantico {
             <div class="modal-overlay-musica"></div>
             <div class="modal-contenido-musica">
                 <h2>🎵 Agregar Nueva Canción</h2>
-                <p class="subtitulo-modal">Sube una canción especial para nosotros</p>
+                <p class="subtitulo-modal">Sube una canción ❤️</p>
                 
                 <form id="formNuevaCancion" class="form-nueva-cancion">
                     <div class="form-grupo">
