@@ -15,7 +15,7 @@ class ReproductorRomantico {
         // Coloca un MP3 en el path: audio/romantica-interna.mp3 (o cambia el src al nombre que prefieras)
         this.playlistBase = [
             {
-                titulo: 'Melodía Romántica (local)',
+                titulo: 'Melodía ',
                 artista: 'Instrumental',
                 // Archivo local dentro del proyecto para evitar CORS cuando pruebas en local
                 src: 'audio/Happy-Together.mp3',
@@ -267,8 +267,8 @@ class ReproductorRomantico {
             <div class="reproductor-info">
                 <span class="icono-musica">🎵</span>
                 <div class="info-cancion">
-                    <div class="cancion-titulo">Música Romántica</div>
-                    <div class="cancion-artista">Para Rocío 💕</div>
+                    <div class="cancion-titulo">Música</div>
+                    <div class="cancion-artista">💕</div>
                 </div>
             </div>
             
