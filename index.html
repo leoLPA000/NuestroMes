@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Página web romántica para Rocío, celebrando nuestro primer mes juntos con mensajes de amor personalizados.">
+    <meta name="author" content="Leo">
+    <meta name="theme-color" content="#e63946">
+    <title>NuestroMes ❤️ Para Rocío</title>
+
+    <!-- Favicon -->
+    <!-- <link rel="icon" type="image/svg+xml" href="img/corazon.svg"> -->
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/estilos.css">
+    <link rel="stylesheet" href="css/boton-navidad.css">
+
+    <!-- Fuentes -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap"
+        rel="stylesheet">
+    <style>
+        /* Modal tarjeta flotante */
+        .modal { display: none; position: fixed; inset: 0; z-index: 9999; }
+        .modal[aria-hidden="false"] { display: block; }
+        .modal-backdrop { position: absolute; inset: 0; background: rgba(5,5,10,0.5); backdrop-filter: blur(4px); }
+        .modal-card { position: absolute; width: 320px; background: linear-gradient(180deg, rgba(20,22,40,0.98), rgba(25,18,45,0.98)); color: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 18px 48px rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.04); transform-origin: center top; transform: translateY(6px) scale(0.98); transition: transform 220ms cubic-bezier(.2,.9,.2,1), opacity 200ms; opacity: 0; }
+        .modal[aria-hidden="false"] .modal-card { opacity: 1; transform: translateY(0) scale(1); }
+        .modal-close { position: absolute; top: 8px; right: 10px; background: transparent; border: none; color: #fff; font-size: 18px; cursor: pointer; }
+        .modal h3 { margin: 6px 0 8px; font-size: 1.25rem; }
+        .modal-text { margin: 0 0 12px; opacity: 0.95; }
+        .modal-countdown { font-weight: 700; font-size: 1.05rem; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 8px; text-align:center; }
+        .modal-actions { display:flex; justify-content:center; margin-top:12px; }
+        .btn-secondary { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); color: #fff; padding:8px 12px; border-radius:8px; cursor:pointer; }
+        @media (max-width: 480px) { .modal-card { width: calc(100% - 32px); left: 16px !important; right: 16px; } }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header class="hero">
+            <h1 class="titulo-principal">Para ti, Rocío ❤️</h1>
+            <p class="subtitulo">Nuestro riconcito</p>
+            <div class="fecha-especial">Rocío & Leonardo</div>
+        </header>
+
+        <section class="intro">
+            <p class="mensaje-intro">
+                Mi amor, esta página es para ti. Cada categoría guarda mensajes especiales
+                para acompañarte en cualquier momento. Léeme cuando lo necesites... 💕
+            </p>
+        </section>
+
+        <section class="categorias">
+            <h2 class="seccion-titulo">Elige cómo te sientes hoy</h2>
+
+            <div class="grid-categorias" role="navigation" aria-label="Categorías de mensajes">
+                <a href="mensajes.html?categoria=feliz" class="categoria-card feliz"
+                    aria-label="Ver mensajes para cuando estés feliz">
+                    <div class="icono" role="img" aria-label="Emoji feliz">😄</div>
+                    <h3>Cuando estés feliz</h3>
+                    <p>Celebremos juntos tu alegría</p>
+                </a>
+
+                <a href="mensajes.html?categoria=triste" class="categoria-card triste"
+                    aria-label="Ver mensajes para cuando estés triste">
+                    <div class="icono" role="img" aria-label="Emoji triste">😢</div>
+                    <h3>Cuando estés triste</h3>
+                    <p>Deja que te abrace con palabras</p>
+                </a>
+
+                <a href="mensajes.html?categoria=enojada" class="categoria-card enojada"
+                    aria-label="Ver mensajes para cuando estés enojada">
+                    <div class="icono" role="img" aria-label="Emoji enojado">😤</div>
+                    <h3>Cuando estés enojada</h3>
+                    <p>Respira... aquí estoy para ti</p>
+                </a>
+
+                <a href="mensajes.html?categoria=amor" class="categoria-card amor"
+                    aria-label="Ver mensajes sobre por qué te amo">
+                    <div class="icono" role="img" aria-label="Emoji corazón">❤️</div>
+                    <h3>Por qué te amo</h3>
+                    <p>Las razones nunca terminan</p>
+                </a>
+
+                <a href="mensajes.html?categoria=nostalgia" class="categoria-card nostalgia"
+                    aria-label="Ver mensajes para cuando me extrañes">
+                    <div class="icono" role="img" aria-label="Emoji luna">🌙</div>
+                    <h3>Cuando me extrañes</h3>
+                    <p>Estoy más cerca de lo que piensas</p>
+                </a>
+
+                <a href="mensajes.html?categoria=motivacion" class="categoria-card motivacion"
+                    aria-label="Ver mensajes motivacionales">
+                    <div class="icono" role="img" aria-label="Emoji músculo">💪</div>
+                    <h3>Cuando necesites fuerza</h3>
+                    <p>Eres más fuerte de lo que crees</p>
+                </a>
+            </div>
+        </section>
+
+        <section class="acceso-rapido">
+            <a href="mis-mensajes.html" class="btn-mis-mensajes">
+                <span class="icono-btn">✍️</span>
+                <div class="texto-btn">
+                    <strong>Mis Mensajes</strong>
+                    <small id="contadorMisMensajes">0 mensajes guardados</small>
+                </div>
+            </a>
+        </section>
+
+        <!-- Botón de acceso: enlace a Atardecer-Estrellado (bloqueado hasta la fecha) -->
+        <a href="#" data-target="Atardecer-Estrellado.html" class="btn-calendario-navidad disabled" id="btnAtardecer"
+            title="Se abrirá el 8 de enero de 2026 a las 00:00 (hora Argentina)" aria-label="Ver Atardecer Estrellado" aria-disabled="true">
+            🖼️
+        </a>
+
+        <!-- Modal de información y countdown -->
+        <div id="modalAtardecer" class="modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modalTitleAtardecer">
+            <div class="modal-backdrop" id="modalBackdropAtardecer"></div>
+            <div class="modal-card" role="document" id="modalCardAtardecer">
+                <button class="modal-close" id="modalCloseAtardecer" aria-label="Cerrar">✕</button>
+                <h3 id="modalTitleAtardecer">Atardecer Estrellado</h3>
+                <p class="modal-text">Lo siento, este contenido se abrirá en la fecha indicada. Mientras tanto puedes ver cuánto falta:</p>
+                <div class="modal-countdown" id="modalCountdownAtardecer">Abrirá en: —</div>
+                <div class="modal-actions">
+                    <button class="btn-secondary" id="modalVolverAtardecer">Volver</button>
+                </div>
+            </div>
+        </div>
+        
+
+        <footer class="pie-pagina">
+            <div class="contador-dias">
+                <p class="texto-contador">Llevamos juntos:</p>
+                <p class="numero-dias" id="diasJuntos">1 mes</p>
+                <p class="texto-pequeno">Desde el 8 de octubre, 2025 💕</p>
+            </div>
+            <p>Con todo mi amor para Rocío Milagros 💕</p>
+            <p class="firma">— Tu Leonardo que te adora</p>
+        </footer>
+    </div>
+
+    <!-- Efectos visuales -->
+    <div id="efectos-fondo"></div>
+
+    <!-- Contenedor para partículas del cursor -->
+    <div id="cursor-particles"></div>
+
+    <!-- Supabase SDK (necesario para storage y DB) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+    <script src="js/supabaseConfig.js"></script>
+
+    <!--<script src="js/efectos.js"></script> -->
+    <script src="js/cursorEffects.js"></script>
+    <script src="js/musica.js"></script>
+    <script src="js/galeria.js"></script>
+    <script src="js/modoOscuro.js"></script>
+    <script src="js/formulario.js"></script>
+    <script>
+        // Contador: cada día 8 se considera inicio de un nuevo mes
+        function calcularDiasJuntos() {
+            const fechaInicio = new Date(2025, 9, 8); // mes 9 = octubre (0-based)
+            const hoy = new Date();
+
+            // normalizar a fecha (sin hora)
+            const today = new Date(hoy.getFullYear(), hoy.getMonth(), hoy.getDate());
+
+            if (today < fechaInicio) {
+                document.getElementById('diasJuntos').textContent = 'Aún no comienza';
+                return;
+            }
+
+            // meses totales transcurridos desde inicio
+            let totalMonths = (today.getFullYear() - fechaInicio.getFullYear()) * 12 + (today.getMonth() - fechaInicio.getMonth());
+
+            // Si no hemos llegado al día 8 del mes actual, no contar este mes aún
+            if (today.getDate() < 8) {
+                totalMonths -= 1;
+            }
+
+            if (totalMonths < 0) totalMonths = 0;
+
+            // calcular la fecha del último '8' que marcó el inicio del mes actual en el conteo
+            let referenciaMes = new Date(fechaInicio.getFullYear(), fechaInicio.getMonth(), 8);
+            referenciaMes.setMonth(referenciaMes.getMonth() + totalMonths);
+
+            // si la referencia está en el futuro (raro), retroceder un mes
+            if (referenciaMes > today) {
+                referenciaMes.setMonth(referenciaMes.getMonth() - 1);
+            }
+
+            // calcular días desde la referencia
+            const diffMs = today - referenciaMes;
+            const dias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+            let texto = '';
+            if (totalMonths === 0 && dias === 0) {
+                texto = '¡Hoy comenzamos! 🎉';
+            } else {
+                texto = totalMonths + (totalMonths === 1 ? ' mes' : ' meses');
+                if (dias > 0) texto += ' y ' + dias + (dias === 1 ? ' día' : ' días');
+            }
+
+            const elemento = document.getElementById('diasJuntos');
+            if (elemento) {
+                elemento.textContent = texto;
+                elemento.style.animation = 'heartbeat 2s infinite';
+            }
+        }
+
+        // Calcular al cargar
+        calcularDiasJuntos();
+
+        // Actualizar contador de mensajes personalizados
+        function actualizarContadorMensajes() {
+            const mensajes = JSON.parse(localStorage.getItem('mensajesPersonalizados') || '[]');
+            const contador = document.getElementById('contadorMisMensajes');
+            if (contador) {
+                const num = mensajes.length;
+                contador.textContent = num === 0 ? 'Sin mensajes aún' :
+                    num === 1 ? '1 mensaje guardado' :
+                        `${num} mensajes guardados`;
+            }
+        }
+
+        actualizarContadorMensajes();
+
+        // Actualizar cuando cambie localStorage
+        window.addEventListener('storage', actualizarContadorMensajes);
+
+        // ===== Contador para desbloquear Atardecer-Estrellado (con modal) =====
+        (function(){
+            // Objetivo: 2026-01-08 00:00 hora Argentina (UTC-3)
+            const target = new Date('2026-01-08T00:00:00-03:00').getTime();
+            const btn = document.getElementById('btnAtardecer');
+            const modal = document.getElementById('modalAtardecer');
+            const modalClose = document.getElementById('modalCloseAtardecer');
+            const modalBackdrop = document.getElementById('modalBackdropAtardecer');
+            const modalCountdown = document.getElementById('modalCountdownAtardecer');
+            const modalVolver = document.getElementById('modalVolverAtardecer');
+
+            function pad(n){ return n.toString().padStart(2,'0'); }
+
+            function openModal(){
+                modal.setAttribute('aria-hidden','false');
+                modal.style.display = 'block';
+                // posicionar la tarjeta cerca del botón (flotante)
+                const card = document.getElementById('modalCardAtardecer');
+                card.style.visibility = 'hidden';
+                card.style.display = 'block';
+                // medir
+                const btnRect = btn.getBoundingClientRect();
+                const cardRect = card.getBoundingClientRect();
+                // intentar posicionar arriba del botón, centrada
+                let left = btnRect.left + (btnRect.width / 2) - (cardRect.width / 2);
+                let top = btnRect.top - cardRect.height - 12;
+                // si no cabe arriba, posicionar abajo
+                if (top < 12) top = btnRect.bottom + 12;
+                // mantener dentro de la pantalla
+                const margin = 12;
+                left = Math.max(margin, Math.min(left, window.innerWidth - cardRect.width - margin));
+                card.style.left = left + 'px';
+                card.style.top = top + 'px';
+                card.style.visibility = 'visible';
+                // focus en cerrar
+                modalClose.focus();
+            }
+
+            function closeModal(){
+                modal.setAttribute('aria-hidden','true');
+                modal.style.display = 'none';
+                try { btn.focus(); } catch(e){}
+            }
+
+            function update(){
+                const now = Date.now();
+                let diff = target - now;
+                if(diff <= 0){
+                    // desbloquear
+                    btn.classList.remove('disabled');
+                    btn.removeAttribute('aria-disabled');
+                    const href = btn.getAttribute('data-target');
+                    if(href) btn.setAttribute('href', href);
+                    modalCountdown.textContent = '¡Abierto!';
+                    // cerrar modal si estaba abierto
+                    closeModal();
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000*60*60*24));
+                diff -= days * (1000*60*60*24);
+                const hours = Math.floor(diff / (1000*60*60));
+                diff -= hours * (1000*60*60);
+                const minutes = Math.floor(diff / (1000*60));
+                diff -= minutes * (1000*60);
+                const seconds = Math.floor(diff / 1000);
+
+                modalCountdown.textContent = `Abrirá en: ${days}d ${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+            }
+
+            // Al hacer clic en el botón: si está bloqueado, abrir modal; si no, permitir navegación
+            btn.addEventListener('click', function(e){
+                if(btn.classList.contains('disabled')){
+                    e.preventDefault();
+                    openModal();
+                }
+            });
+
+            // cerrar modal con botón X o con backdrop o con Volver
+            modalClose.addEventListener('click', closeModal);
+            modalBackdrop.addEventListener('click', closeModal);
+            modalVolver.addEventListener('click', closeModal);
+
+            // tecla ESC para cerrar
+            document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeModal(); });
+
+            update();
+            const interval = setInterval(()=>{
+                update();
+                if(!btn.classList.contains('disabled')) clearInterval(interval);
+            }, 1000);
+        })();
+    </script>
+</body>
+
+</html>
